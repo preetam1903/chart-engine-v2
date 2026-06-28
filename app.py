@@ -1,7 +1,7 @@
 import os
 import tempfile
 import streamlit as st
-import cv2
+
 
 from chart_engine import ChartEngine
 from axis_reader import AxisReader
