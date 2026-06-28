@@ -1,5 +1,6 @@
 import os
 import json
+import base64
 import fitz
 
 from PIL import Image
@@ -164,6 +165,12 @@ Example
                 "rb"
 
         ) as f:
+            image_base64 = base64.b64encode(
+                f.read()
+            ).decode(
+                "utf-8"
+            )
+
 
             response = self.client.responses.create(
 
@@ -186,7 +193,7 @@ Example
                             {
                                 "type": "input_image",
 
-                                "image": f.read()
+                                "image_url": f"data:image/png;base64,{image_base64}"
 
                             }
 
