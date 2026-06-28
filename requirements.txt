@@ -1,9 +1,7 @@
 streamlit
 openai
-pillow
-python-dotenv
-opencv-python-headless==4.10.0.84
+opencv-python
+Pillow
 numpy
-plotdigitizer
-matplotlib
-scipy
+pandas
+pymupdf

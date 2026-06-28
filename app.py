@@ -1,97 +1,377 @@
 import os
 import tempfile
-import json
 import streamlit as st
 
-from chart_engine import ChartEngine
-from axis_reader import AxisReader
-from axis_validator import AxisValidator
-from image_preprocessor import ImagePreprocessor
+from pipeline import ChartExtractionPipeline
 
-st.set_page_config(page_title="Chart Engine V2")
 
-st.title("📊 Chart Engine V2")
+st.set_page_config(
 
-uploaded = st.file_uploader(
-    "Upload Cropped Chart",
-    type=["png", "jpg", "jpeg"]
+    page_title="Executive Chart Intelligence",
+
+    layout="wide"
+
 )
 
-if uploaded:
+st.title(
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
-        tmp.write(uploaded.read())
-        image_path = tmp.name
+    "📊 Executive Chart Intelligence Repository"
 
-    # -------------------------------------------------
-    # Original Image
-    # -------------------------------------------------
+)
 
-    st.subheader("Original Chart")
+st.markdown("---")
 
-    st.image(image_path, width="stretch")
+##############################################################
+# Sidebar
+##############################################################
 
-    # -------------------------------------------------
-    # X Axis OCR
-    # -------------------------------------------------
+st.sidebar.header("Configuration")
 
-    axis = AxisReader()
+api_key = st.sidebar.text_input(
 
-    crop, ocr = axis.read_x_axis(image_path)
+    "OpenAI API Key",
 
-    st.subheader("X Axis Crop")
+    type="password"
 
-    st.image(crop, width="stretch")
+)
 
-    st.subheader("OCR Output")
+page_number = st.sidebar.number_input(
 
-    st.code(ocr)
+    "PDF Page Number",
 
-    try:
+    min_value=0,
 
-        ocr_json = json.loads(ocr)
+    value=0,
 
-        validator = AxisValidator()
+    step=1
 
-        corrected = validator.validate(ocr_json["labels"])
+)
 
-        st.subheader("Validated Labels")
+uploaded_pdf = st.file_uploader(
 
-        st.json(corrected)
+    "Upload Executive PDF Report",
 
-    except Exception:
+    type=["pdf"]
 
-        st.error("OCR JSON could not be parsed.")
+)
 
-    # -------------------------------------------------
-    # Image Enhancement
-    # -------------------------------------------------
+run_button = st.button(
 
-    processor = ImagePreprocessor()
+    "🚀 Build Repository",
 
-    enhanced_image = processor.enhance(image_path)
+    use_container_width=True
 
-    st.subheader("Enhanced Chart")
+)
+##############################################################
+# Run Pipeline
+##############################################################
 
-    st.image(enhanced_image, width="stretch")
+if run_button:
 
-    # -------------------------------------------------
-    # Chart Digitization
-    # -------------------------------------------------
+    if uploaded_pdf is None:
 
-    engine = ChartEngine()
+        st.error(
 
-    with st.spinner("Digitizing chart..."):
+            "Please upload a PDF."
 
-        result = engine.understand_chart(enhanced_image)
+        )
 
-    st.subheader("Extracted JSON")
+        st.stop()
 
-    st.json(result)
+    if api_key.strip() == "":
 
-    # -------------------------------------------------
+        st.error(
 
-    os.remove(image_path)
+            "Please enter your OpenAI API Key."
 
-    if os.path.exists(enhanced_image):
-        os.remove(enhanced_image)
+        )
+
+        st.stop()
+
+    #
+    # Save uploaded PDF
+    #
+
+    temp_dir = tempfile.mkdtemp()
+
+    pdf_path = os.path.join(
+
+        temp_dir,
+
+        uploaded_pdf.name
+
+    )
+
+    with open(
+
+            pdf_path,
+
+            "wb"
+
+    ) as f:
+
+        f.write(
+
+            uploaded_pdf.read()
+
+        )
+
+    output_folder = os.path.join(
+
+        temp_dir,
+
+        "repository"
+
+    )
+
+    #
+    # Execute Pipeline
+    #
+
+    with st.spinner(
+
+            "Running AI Agents..."
+
+    ):
+
+        pipeline = ChartExtractionPipeline(
+
+            api_key
+
+        )
+
+        results = pipeline.process(
+
+            pdf_path=pdf_path,
+
+            page_number=page_number,
+
+            output_folder=output_folder
+
+        )
+
+    st.success(
+
+        "Repository Created Successfully."
+
+    )
+
+##############################################################
+# Display Executive Chart Repository
+##############################################################
+
+    repository = results["repository"]
+
+    st.subheader(
+
+        "Executive Chart Repository"
+
+    )
+
+    st.dataframe(
+
+        repository,
+
+        use_container_width=True,
+
+        hide_index=True
+
+    )
+
+##############################################################
+# Download Repository
+##############################################################
+
+    csv_path = os.path.join(
+
+        output_folder,
+
+        "chart_inventory.csv"
+
+    )
+
+    with open(
+
+            csv_path,
+
+            "rb"
+
+    ) as f:
+
+        st.download_button(
+
+            "Download Repository CSV",
+
+            data=f,
+
+            file_name="chart_inventory.csv",
+
+            mime="text/csv"
+
+        )
+
+##############################################################
+# Chart Details
+##############################################################
+
+    st.markdown("---")
+
+    st.subheader(
+
+        "Chart Details"
+
+    )
+
+    for row in results["rows"]:
+
+        with st.expander(
+
+                f'{row["chart_id"]} - {row["chart_title"]}',
+
+                expanded=False
+
+        ):
+
+            chart_folder = os.path.join(
+
+                output_folder,
+
+                row["chart_id"]
+
+            )
+
+            image_path = os.path.join(
+
+                chart_folder,
+
+                "chart.png"
+
+            )
+
+            if os.path.exists(image_path):
+
+                st.image(
+
+                    image_path,
+
+                    use_container_width=True
+
+                )
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.write(
+
+                    "### Summary"
+
+                )
+
+                st.write(
+
+                    f'**Position:** {row["position"]}'
+
+                )
+
+                st.write(
+
+                    f'**Chart Type:** {row["chart_type"]}'
+
+                )
+
+                st.write(
+
+                    f'**X Axis:** {row["x_axis"]}'
+
+                )
+
+                st.write(
+
+                    f'**Left Y:** {row["left_y"]}'
+
+                )
+
+                st.write(
+
+                    f'**Right Y:** {row["right_y"]}'
+
+                )
+
+                st.write(
+
+                    f'**Legends:** {row["legends"]}'
+
+                )
+
+            with col2:
+
+                st.write(
+
+                    "### Validation"
+
+                )
+
+                st.metric(
+
+                    "Status",
+
+                    row["status"]
+
+                )
+
+                st.metric(
+
+                    "Confidence",
+
+                    f'{row["confidence"]}%'
+
+                )
+
+                st.write(
+
+                    "**Warnings**"
+
+                )
+
+                st.info(
+
+                    row["warnings"] if row["warnings"] else "None"
+
+                )
+
+                st.write(
+
+                    "**Errors**"
+
+                )
+
+                st.error(
+
+                    row["errors"] if row["errors"] else "None"
+
+                )
+
+                st.write(
+
+                    "**Missing Information**"
+
+                )
+
+                st.warning(
+
+                    row["missing_information"] if row["missing_information"] else "None"
+
+                )
+
+##############################################################
+# Footer
+##############################################################
+
+    st.markdown("---")
+
+    st.success(
+
+        "Executive Chart Intelligence Repository created successfully."
+
+    )
