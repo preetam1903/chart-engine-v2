@@ -1,6 +1,8 @@
 import os
 
 from PIL import Image
+import json
+
 
 
 class ChartCropAgent:
@@ -245,5 +247,9 @@ class ChartCropAgent:
         ##########################################################
 
         page_template["charts"] = updated_charts
+
+        print("=" * 80)
+        print(json.dumps(page_template, indent=4))
+        print("=" * 80)
 
         return page_template
