@@ -48,6 +48,7 @@ class ChartExtractionPipeline:
             pdf_path,
 
             page_number,
+            charts_per_page,
 
             output_folder
 
@@ -113,7 +114,7 @@ class ChartExtractionPipeline:
         # Process Every Cropped Chart
         ##############################################################
 
-        charts = layout["charts"]
+        charts = page_template["charts"]
 
         for i, layout_chart in enumerate(charts):
 
@@ -291,19 +292,7 @@ class ChartExtractionPipeline:
 
         )
 
-        self.layout_agent.save_json(
-
-            layout,
-
-            os.path.join(
-
-                output_folder,
-
-                "layout.json"
-
-            )
-
-        )
+       
 
         ##############################################################
         # STEP 6
@@ -338,7 +327,9 @@ class ChartExtractionPipeline:
 
             "header": header,
 
-            "layout": layout,
+            "page_template": page_template,
+
+            "grid_preview": preview_image,
 
             "repository": repository,
 
