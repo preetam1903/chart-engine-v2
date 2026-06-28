@@ -40,6 +40,21 @@ page_number = st.sidebar.number_input(
     step=1
 
 )
+##############################################################
+# Charts Per Page
+##############################################################
+
+charts_per_page = st.sidebar.selectbox(
+
+    "Charts Per Page",
+
+    options=[4, 6, 8, 9, 12, 16],
+
+    index=0,
+
+    help="Select the expected number of charts on this page."
+
+)
 
 uploaded_pdf = st.file_uploader(
 
@@ -131,10 +146,31 @@ if run_button:
             pdf_path=pdf_path,
 
             page_number=page_number,
+            charts_per_page=charts_per_page,
 
             output_folder=output_folder
 
         )
+
+        ##############################################################
+# Grid Preview
+##############################################################
+
+        if "grid_preview" in results:
+
+            st.subheader(
+
+                "Expected Grid Layout"
+
+            )
+
+            st.image(
+
+                results["grid_preview"],
+
+                use_container_width=True
+
+            )
 
     st.success(
 

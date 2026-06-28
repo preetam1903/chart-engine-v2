@@ -1,11 +1,14 @@
 import os
 
 from header_agent import HeaderAgent
-from layout_agent import LayoutAgent
+#from layout_agent import LayoutAgent
 from x_axis_agent import XAxisAgent
 from chart_agent import ChartAgent
 from validation_agent import ValidationAgent
 import shutil
+from page_template_agent import PageTemplateAgent
+
+from grid_preview_agent import GridPreviewAgent
 
 
 class ChartExtractionPipeline:
@@ -24,11 +27,9 @@ class ChartExtractionPipeline:
 
         self.header_agent = HeaderAgent(api_key)
 
-        self.layout_agent = LayoutAgent(
+        self.page_template_agent = PageTemplateAgent()
 
-            api_key
-
-        )
+        self.grid_preview_agent = GridPreviewAgent()
 
         self.xaxis_agent = XAxisAgent(api_key)
 
@@ -75,16 +76,31 @@ class ChartExtractionPipeline:
 
         )
 
-        #
-        # STEP 2
-        # Layout Agent
-        #
+ ##############################################################
+# STEP 2
+# Page Template Agent
+##############################################################
 
-        layout = self.layout_agent.process(
+        page_template = self.page_template_agent.process(
 
-            pdf_path,
+            pdf_path=pdf_path,
 
-            page_number,
+            page_number=page_number,
+
+            charts_per_page=charts_per_page,
+
+            output_folder=output_folder
+
+        )
+
+##############################################################
+# STEP 3.1
+# Grid Preview
+##############################################################
+
+        preview_image = self.grid_preview_agent.process(
+
+            page_template,
 
             output_folder
 
