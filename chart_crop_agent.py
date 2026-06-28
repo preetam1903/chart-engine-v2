@@ -53,13 +53,13 @@ class ChartCropAgent:
 
             output_folder,
 
-            padding_left=20,
+            left_ratio=0.12,
 
-            padding_top=50,
+            top_ratio=0.15,
 
-            padding_right=20,
+            right_ratio=0.12,
 
-            padding_bottom=30
+            bottom_ratio=0.3
 
     ):
 
@@ -67,40 +67,41 @@ class ChartCropAgent:
 
         bbox = chart["expected_bbox"]
 
-        ##########################################################
-        # Expand Expected Box
-        ##########################################################
+       ##########################################################
+# Calculate Dynamic Padding
+##########################################################
+
+        chart_width = bbox["right"] - bbox["left"]
+        chart_height = bbox["bottom"] - bbox["top"]
+
+        left_padding = int(chart_width * left_ratio)
+        right_padding = int(chart_width * right_ratio)
+
+        top_padding = int(chart_height * top_ratio)
+        bottom_padding = int(chart_height * bottom_ratio)
+
+##########################################################
+# Expand Expected Box
+##########################################################
 
         left = max(
-
             0,
-
-            bbox["left"] - padding_left
-
+            bbox["left"] - left_padding
         )
 
         top = max(
-
             0,
-
-            bbox["top"] - padding_top
-
+            bbox["top"] - top_padding
         )
 
         right = min(
-
             width,
-
-            bbox["right"] + padding_right
-
+            bbox["right"] + right_padding
         )
 
         bottom = min(
-
             height,
-
-            bbox["bottom"] + padding_bottom
-
+            bbox["bottom"] + bottom_padding
         )
 
         ##########################################################
@@ -178,6 +179,16 @@ class ChartCropAgent:
         chart["crop_width"] = right - left
 
         chart["crop_height"] = bottom - top
+
+        chart["crop_metadata"] = {
+
+            "left_padding": left_padding,
+            "right_padding": right_padding,
+            "top_padding": top_padding,
+            "bottom_padding": bottom_padding,
+            "method": "dynamic_percentage_v1"
+
+        }
 
         return chart
 
