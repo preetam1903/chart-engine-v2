@@ -3,6 +3,7 @@ import tempfile
 import streamlit as st
 
 from chart_engine import ChartEngine
+from axis_reader import AxisReader
 
 st.set_page_config(page_title="Chart Engine V2")
 
@@ -20,6 +21,17 @@ if uploaded:
         image_path = tmp.name
 
     st.image(image_path, use_container_width=True)
+    axis = AxisReader()
+
+    crop, ocr = axis.read_x_axis(image_path)
+
+    st.subheader("X Axis Crop")
+
+    st.image(crop, use_container_width=True)
+
+    st.subheader("OCR Output")
+
+    st.code(ocr)
 
     engine = ChartEngine()
 
