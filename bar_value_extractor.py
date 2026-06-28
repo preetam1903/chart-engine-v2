@@ -8,37 +8,81 @@ class BarValueExtractor:
 
         img = cv2.imread(image_path)
 
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        if img is None:
+            return None, []
 
-        # Detect blue bars
-        lower_blue = np.array([90, 50, 50])
-        upper_blue = np.array([140, 255, 255])
+        # Convert to grayscale
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        mask = cv2.inRange(hsv, lower_blue, upper_blue)
+        # Blur to remove noise
+        gray = cv2.GaussianBlur(gray, (3, 3), 0)
+
+        # Binary image
+        _, thresh = cv2.threshold(
+            gray,
+            220,
+            255,
+            cv2.THRESH_BINARY_INV
+        )
+
+        # Join broken bar edges
+        kernel = cv2.getStructuringElement(
+            cv2.MORPH_RECT,
+            (3, 3)
+        )
+
+        thresh = cv2.morphologyEx(
+            thresh,
+            cv2.MORPH_CLOSE,
+            kernel,
+            iterations=2
+        )
 
         contours, _ = cv2.findContours(
-            mask,
+            thresh,
             cv2.RETR_EXTERNAL,
             cv2.CHAIN_APPROX_SIMPLE
         )
 
         bars = []
 
-        for c in contours:
+        h_img, w_img = gray.shape
 
-            x, y, w, h = cv2.boundingRect(c)
+        for cnt in contours:
+
+            x, y, w, h = cv2.boundingRect(cnt)
 
             # Ignore tiny objects
-            if h < 20:
+            if w < 4:
                 continue
 
-            bars.append({
-                "x": x,
-                "y": y,
-                "w": w,
-                "h": h
-            })
+            if h < 15:
+                continue
 
-        bars = sorted(bars, key=lambda b: b["x"])
+            # Ignore very wide objects
+            if w > 40:
+                continue
+
+            # Ignore objects touching image border
+            if x <= 2 or y <= 2:
+                continue
+
+            if x + w >= w_img - 2:
+                continue
+
+            if y + h >= h_img - 2:
+                continue
+
+            # Keep only vertical objects
+            if h > w:
+
+                bars.append({
+                    "x": x,
+                    "y": y,
+                    "w": w,
+                    "h": h
+                })
+
+        bars.sort(key=lambda b: b["x"])
 
         return img, bars
