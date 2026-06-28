@@ -1,322 +1,430 @@
 import os
-import fitz
-import cv2
 import json
-import numpy as np
+import fitz
+
 from PIL import Image
-from io import BytesIO
+from openai import OpenAI
 
 
 class LayoutAgent:
 
-    def __init__(self):
+    ##############################################################
+    # Constructor
+    ##############################################################
 
-        pass
+    def __init__(
+
+            self,
+
+            api_key
+
+    ):
+
+        self.client = OpenAI(
+
+            api_key=api_key
+
+        )
 
     ##############################################################
     # Convert PDF Page to Image
     ##############################################################
 
-    def pdf_page_to_image(
+    def render_page(
+
             self,
+
             pdf_path,
-            page_number
-    ):
 
-        doc = fitz.open(pdf_path)
-
-        page = doc.load_page(page_number)
-
-        pix = page.get_pixmap(matrix=fitz.Matrix(3,3))
-
-        image = Image.open(
-            BytesIO(
-                pix.tobytes("png")
-            )
-        )
-
-        return np.array(image)
-
-    ##############################################################
-    # Detect Charts
-    ##############################################################
-
-    def detect_layout(
-            self,
-            pdf_path,
-            page_number
-    ):
-
-        image = self.pdf_page_to_image(
-            pdf_path,
-            page_number
-        )
-
-        layout = self.find_chart_boxes(image)
-
-        return layout
-        ##############################################################
-    # Find Chart Bounding Boxes
-    ##############################################################
-
-    def find_chart_boxes(self, image):
-
-        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-        blur = cv2.GaussianBlur(gray, (5, 5), 0)
-
-        edges = cv2.Canny(
-            blur,
-            50,
-            150
-        )
-
-        kernel = cv2.getStructuringElement(
-            cv2.MORPH_RECT,
-            (7, 7)
-        )
-
-        edges = cv2.dilate(
-            edges,
-            kernel,
-            iterations=2
-        )
-
-        contours, _ = cv2.findContours(
-            edges,
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE
-        )
-
-        charts = []
-
-        height, width = image.shape[:2]
-
-        chart_no = 1
-
-        for c in contours:
-
-            x, y, w, h = cv2.boundingRect(c)
-
-            area = w * h
-
-            # Ignore tiny objects
-
-            if area < 50000:
-                continue
-
-            # Ignore objects touching page border
-
-            if x < 20 or y < 20:
-                continue
-
-            if x + w > width - 20:
-                continue
-
-            if y + h > height - 20:
-                continue
-
-            charts.append({
-
-                "chart_id": f"CH{chart_no:03}",
-
-                "x": int(x),
-
-                "y": int(y),
-
-                "w": int(w),
-
-                "h": int(h)
-
-            })
-
-            chart_no += 1
-
-        charts = sorted(
-            charts,
-            key=lambda c: (
-                c["y"],
-                c["x"]
-            )
-        )
-
-        return self.assign_positions(
-            image,
-            charts
-        )
-        ##############################################################
-    # Assign Grid Positions
-    ##############################################################
-
-    def assign_positions(
-            self,
-            image,
-            charts
-    ):
-
-        if len(charts) == 0:
-
-            return {
-
-                "page": None,
-
-                "chart_count": 0,
-
-                "charts": []
-
-            }
-
-        #
-        # Sort top to bottom then left to right
-        #
-
-        charts = sorted(
-            charts,
-            key=lambda c: (c["y"], c["x"])
-        )
-
-        #
-        # Detect rows
-        #
-
-        rows = []
-
-        tolerance = 60
-
-        for chart in charts:
-
-            assigned = False
-
-            for row in rows:
-
-                if abs(chart["y"] - row["y"]) < tolerance:
-
-                    row["charts"].append(chart)
-
-                    assigned = True
-
-                    break
-
-            if not assigned:
-
-                rows.append({
-
-                    "y": chart["y"],
-
-                    "charts": [chart]
-
-                })
-
-        #
-        # Sort each row by X
-        #
-
-        for row in rows:
-
-            row["charts"] = sorted(
-                row["charts"],
-                key=lambda c: c["x"]
-            )
-
-        #
-        # Assign R1C1 style positions
-        #
-
-        final = []
-
-        for r, row in enumerate(rows):
-
-            for c, chart in enumerate(row["charts"]):
-
-                chart["position"] = f"R{r+1}C{c+1}"
-
-                final.append(chart)
-
-        return {
-
-            "rows": len(rows),
-
-            "chart_count": len(final),
-
-            "charts": final
-
-        }
-
-    ##############################################################
-    # Crop Charts
-    ##############################################################
-
-    def crop_charts(
-            self,
-            pdf_path,
             page_number,
-            layout,
+
             output_folder
+
     ):
 
         os.makedirs(
+
             output_folder,
+
             exist_ok=True
+
         )
 
-        image = self.pdf_page_to_image(
-            pdf_path,
+        document = fitz.open(
+
+            pdf_path
+
+        )
+
+        page = document.load_page(
+
             page_number
+
         )
 
-        saved = []
+        #
+        # High Resolution Rendering
+        #
 
-        for chart in layout["charts"]:
+        matrix = fitz.Matrix(
 
-            x = chart["x"]
-            y = chart["y"]
-            w = chart["w"]
-            h = chart["h"]
+            3,
 
-            crop = image[
-                y:y+h,
-                x:x+w
-            ]
+            3
 
-            file_name = os.path.join(
+        )
 
-                output_folder,
+        pix = page.get_pixmap(
 
-                f'{chart["chart_id"]}.png'
+            matrix=matrix,
+
+            alpha=False
+
+        )
+
+        image_path = os.path.join(
+
+            output_folder,
+
+            f"page_{page_number+1}.png"
+
+        )
+
+        pix.save(
+
+            image_path
+
+        )
+
+        document.close()
+
+        return image_path
+        ##############################################################
+    # Detect Chart Layout using GPT Vision
+    ##############################################################
+
+    def detect_layout(
+
+            self,
+
+            image_path
+
+    ):
+
+        prompt = """
+You are an expert in executive dashboard analysis.
+
+Your task is to detect EVERY chart visible on this page.
+
+For each chart return:
+
+- chart_id (CH001, CH002...)
+- position (R1C1, R1C2...)
+- bounding box
+    - x
+    - y
+    - width
+    - height
+
+Rules
+
+1. Ignore page titles.
+2. Ignore comments.
+3. Ignore tables.
+4. Ignore logos.
+5. Ignore legends outside charts.
+6. Return ONLY charts.
+7. Bounding boxes must tightly fit the complete chart.
+8. Return JSON only.
+
+Example
+
+{
+    "page_number":1,
+    "chart_count":4,
+    "charts":[
+        {
+            "chart_id":"CH001",
+            "position":"R1C1",
+            "bbox":{
+                "x":20,
+                "y":40,
+                "width":380,
+                "height":220
+            }
+        }
+    ]
+}
+"""
+
+        with open(
+
+                image_path,
+
+                "rb"
+
+        ) as f:
+
+            response = self.client.responses.create(
+
+                model="gpt-4.1",
+
+                input=[
+
+                    {
+                        "role": "user",
+
+                        "content": [
+
+                            {
+                                "type": "input_text",
+
+                                "text": prompt
+
+                            },
+
+                            {
+                                "type": "input_image",
+
+                                "image": f.read()
+
+                            }
+
+                        ]
+
+                    }
+
+                ]
 
             )
 
-            Image.fromarray(crop).save(file_name)
+        result = response.output_text.strip()
 
-            chart["image"] = file_name
+        if result.startswith("```json"):
+            result = result.replace("```json", "").replace("```", "").strip()
 
-            saved.append(chart)
+        elif result.startswith("```"):
+            result = result.replace("```", "").strip()
 
-        layout["charts"] = saved
-
-        return layout
-
+        return json.loads(result)
+        ##############################################################
+    # Crop Charts using Pillow
     ##############################################################
+
+    def crop_charts(
+
+            self,
+
+            image_path,
+
+            layout,
+
+            output_folder
+
+    ):
+
+        os.makedirs(
+
+            output_folder,
+
+            exist_ok=True
+
+        )
+
+        page = Image.open(
+
+            image_path
+
+        )
+        page = page.convert("RGB")
+
+        charts = []
+
+        for chart in layout["charts"]:
+
+            bbox = chart["bbox"]
+
+            x = int(bbox["x"])
+            y = int(bbox["y"])
+            w = int(bbox["width"])
+            h = int(bbox["height"])
+
+            page_width, page_height = page.size
+
+            x = max(0, x)
+            y = max(0, y)
+
+            w = min(w, page_width - x)
+            h = min(h, page_height - y)
+
+            cropped = page.crop(
+
+                (
+
+                    x,
+
+                    y,
+
+                    x + w,
+
+                    y + h
+
+                )
+
+            )
+
+            filename = f'{chart["chart_id"]}.png'
+
+            filepath = os.path.join(
+
+                output_folder,
+
+                filename
+
+            )
+
+            cropped.save(
+
+                filepath
+
+            )
+
+            charts.append(
+
+                {
+
+                    "chart_id": chart["chart_id"],
+
+                    "position": chart["position"],
+
+                    "bbox": bbox,
+
+                    "image": filepath
+
+                }
+
+            )
+
+        return {
+
+            "page_number": layout["page_number"],
+
+            "chart_count": len(charts),
+
+            "charts": charts
+
+        }
+
+        ##############################################################
     # Save Layout JSON
     ##############################################################
 
     def save_json(
+
             self,
-            layout,
+
+            result,
+
             output_file
+
     ):
 
+        os.makedirs(
+
+            os.path.dirname(
+
+                output_file
+
+            ),
+
+            exist_ok=True
+
+        )
+
         with open(
+
                 output_file,
+
                 "w",
+
                 encoding="utf-8"
+
         ) as f:
 
             json.dump(
-                layout,
+
+                result,
+
                 f,
+
                 indent=4,
+
                 ensure_ascii=False
+
             )
 
         return output_file
+
+    ##############################################################
+    # Process Complete Layout
+    ##############################################################
+
+    def process(
+
+            self,
+
+            pdf_path,
+
+            page_number,
+
+            output_folder
+
+    ):
+
+        page_image = self.render_page(
+
+            pdf_path,
+
+            page_number,
+
+            output_folder
+
+        )
+
+        layout = self.detect_layout(
+
+            page_image
+
+        )
+
+        layout = self.crop_charts(
+
+            page_image,
+
+            layout,
+
+            os.path.join(
+
+                output_folder,
+
+                "cropped"
+
+            )
+
+        )
+
+        self.save_json(
+
+            layout,
+
+            os.path.join(
+
+                output_folder,
+
+                "layout.json"
+
+            )
+
+        )
+
+        return layout

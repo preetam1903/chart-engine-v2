@@ -24,7 +24,11 @@ class ChartExtractionPipeline:
 
         self.header_agent = HeaderAgent(api_key)
 
-        self.layout_agent = LayoutAgent()
+        self.layout_agent = LayoutAgent(
+
+            api_key
+
+        )
 
         self.xaxis_agent = XAxisAgent(api_key)
 
@@ -76,31 +80,18 @@ class ChartExtractionPipeline:
         # Layout Agent
         #
 
-        layout = self.layout_agent.detect_layout(
-
-            pdf_path,
-
-            page_number
-
-        )
-
-        layout = self.layout_agent.crop_charts(
+        layout = self.layout_agent.process(
 
             pdf_path,
 
             page_number,
 
-            layout,
-
-            os.path.join(
-
-                output_folder,
-
-                "cropped"
-
-            )
+            output_folder
 
         )
+
+
+        
                 ##############################################################
         # STEP 3
         # Process Every Cropped Chart
@@ -116,13 +107,19 @@ class ChartExtractionPipeline:
             # Header information for this chart
             #
 
-            if "charts" in header and i < len(header["charts"]):
+            header_chart = {}
+
+            if (
+
+                "charts" in header
+
+                and
+
+                i < len(header["charts"])
+
+            ):
 
                 header_chart = header["charts"][i]
-
-            else:
-
-                header_chart = {}
 
             ##########################################################
             # X Axis Agent
