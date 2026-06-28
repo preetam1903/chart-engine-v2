@@ -57,51 +57,5 @@ if uploaded:
     st.json(result)
         
     # -------------------------------
-    # Bar Detection
-    # -------------------------------
-
-    extractor = BarValueExtractor()
-
-    img, bars = extractor.detect_bars(image_path)
-    st.write(f"Bars detected: {len(bars)}")
-
-    st.subheader("Detected Bars")
-
-    debug = img.copy()
-
     
-
-    for i, bar in enumerate(bars):
-
-        x = bar["x"]
-        top = bar["top"]
-        bottom = bar["bottom"]
-
-        cv2.line(
-            debug,
-            (x, top),
-            (x, bottom),
-            (0, 255, 0),
-            2
-        )
-
-        cv2.putText(
-            debug,
-            str(i + 1),
-            (x - 4, top - 5),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.4,
-            (0, 0, 255),
-            1
-        )
-
-    st.image(
-        cv2.cvtColor(debug, cv2.COLOR_BGR2RGB),
-        use_container_width=True
-    )
-
-    st.json(bars)
-
-    
-
     os.remove(image_path)
