@@ -27,13 +27,7 @@ st.markdown("---")
 
 st.sidebar.header("Configuration")
 
-api_key = st.sidebar.text_input(
 
-    "OpenAI API Key",
-
-    type="password"
-
-)
 
 page_number = st.sidebar.number_input(
 
@@ -78,15 +72,7 @@ if run_button:
 
         st.stop()
 
-    if api_key.strip() == "":
-
-        st.error(
-
-            "Please enter your OpenAI API Key."
-
-        )
-
-        st.stop()
+ 
 
     #
     # Save uploaded PDF
@@ -136,7 +122,7 @@ if run_button:
 
         pipeline = ChartExtractionPipeline(
 
-            api_key
+            st.secrets["OPENAI_API_KEY"]
 
         )
 
