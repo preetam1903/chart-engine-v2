@@ -9,6 +9,7 @@ import shutil
 from page_template_agent import PageTemplateAgent
 
 from grid_preview_agent import GridPreviewAgent
+from chart_crop_agent import ChartCropAgent
 
 
 class ChartExtractionPipeline:
@@ -30,6 +31,7 @@ class ChartExtractionPipeline:
         self.page_template_agent = PageTemplateAgent()
 
         self.grid_preview_agent = GridPreviewAgent()
+        self.chart_crop_agent = ChartCropAgent()
 
         self.xaxis_agent = XAxisAgent(api_key)
 
@@ -100,6 +102,16 @@ class ChartExtractionPipeline:
 ##############################################################
 
         preview_image = self.grid_preview_agent.process(
+            page_template,
+            output_folder
+        )
+
+##############################################################
+# STEP 4
+# Crop Charts
+##############################################################
+
+        page_template = self.chart_crop_agent.process(
 
             page_template,
 
