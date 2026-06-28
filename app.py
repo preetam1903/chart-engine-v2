@@ -4,6 +4,8 @@ import streamlit as st
 
 from chart_engine import ChartEngine
 from axis_reader import AxisReader
+from axis_validator import AxisValidator
+import json
 
 st.set_page_config(page_title="Chart Engine V2")
 
@@ -32,6 +34,15 @@ if uploaded:
     st.subheader("OCR Output")
 
     st.code(ocr)
+    ocr_json = json.loads(ocr)
+
+    validator = AxisValidator()
+
+    corrected = validator.validate(ocr_json["labels"])
+
+    st.subheader("Validated Labels")
+
+    st.json(corrected)
 
     engine = ChartEngine()
 
