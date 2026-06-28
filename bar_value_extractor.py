@@ -11,78 +11,87 @@ class BarValueExtractor:
         if img is None:
             return None, []
 
-        # Convert to grayscale
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        # Blur to remove noise
-        gray = cv2.GaussianBlur(gray, (3, 3), 0)
-
-        # Binary image
-        _, thresh = cv2.threshold(
+        # Invert image
+        _, binary = cv2.threshold(
             gray,
-            220,
+            210,
             255,
             cv2.THRESH_BINARY_INV
         )
 
-        # Join broken bar edges
-        kernel = cv2.getStructuringElement(
-            cv2.MORPH_RECT,
-            (3, 3)
-        )
+        h, w = binary.shape
 
-        thresh = cv2.morphologyEx(
-            thresh,
-            cv2.MORPH_CLOSE,
-            kernel,
-            iterations=2
-        )
+        # Ignore top legend
+        binary = binary[40:h-35, :]
 
-        contours, _ = cv2.findContours(
-            thresh,
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE
-        )
+        projection = np.sum(binary > 0, axis=0)
 
         bars = []
 
-        h_img, w_img = gray.shape
+        inside = False
+        start = 0
 
-        for cnt in contours:
+        for x in range(len(projection)):
 
-            x, y, w, h = cv2.boundingRect(cnt)
+            if projection[x] > 15 and not inside:
+                start = x
+                inside = True
 
-            # Ignore tiny objects
-            if w < 4:
-                continue
+            elif projection[x] <= 15 and inside:
 
-            if h < 15:
-                continue
+                end = x
 
-            # Ignore very wide objects
-            if w > 40:
-                continue
+                width = end - start
 
-            # Ignore objects touching image border
-            if x <= 2 or y <= 2:
-                continue
+                if 4 <= width <= 25:
 
-            if x + w >= w_img - 2:
-                continue
+                    center = (start + end) // 2
 
-            if y + h >= h_img - 2:
-                continue
+                    column = binary[:, center]
 
-            # Keep only vertical objects
-            if h > w:
+                    pixels = np.where(column > 0)[0]
 
-                bars.append({
-                    "x": x,
-                    "y": y,
-                    "w": w,
-                    "h": h
-                })
+                    if len(pixels):
 
-        bars.sort(key=lambda b: b["x"])
+                        top = pixels[0]
+                        bottom = pixels[-1]
 
-        return img, bars
+                        bars.append({
+
+                            "x": center,
+
+                            "top": int(top),
+
+                            "bottom": int(bottom),
+
+                            "height": int(bottom-top)
+
+                        })
+
+                inside = False
+
+        debug = cv2.cvtColor(binary, cv2.COLOR_GRAY2BGR)
+
+        for i, bar in enumerate(bars):
+
+            cv2.line(
+                debug,
+                (bar["x"], bar["top"]),
+                (bar["x"], bar["bottom"]),
+                (0,255,0),
+                2
+            )
+
+            cv2.putText(
+                debug,
+                str(i+1),
+                (bar["x"]-4, bar["top"]-5),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.4,
+                (0,0,255),
+                1
+            )
+
+        return debug, bars
