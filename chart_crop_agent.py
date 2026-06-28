@@ -248,8 +248,14 @@ class ChartCropAgent:
 
         page_template["charts"] = updated_charts
 
-        print("=" * 80)
-        print(json.dumps(page_template, indent=4))
-        print("=" * 80)
+        json_path = os.path.join(
+            output_folder,
+            "page_template.json"
+        )
+
+        with open(json_path, "w") as f:
+            json.dump(page_template, f, indent=4)
+
+        print(f"Saved to {json_path}")
 
         return page_template
