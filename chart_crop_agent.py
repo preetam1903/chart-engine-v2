@@ -107,26 +107,10 @@ class ChartCropAgent:
 # Expand Expected Box
 ##########################################################
 
-        left = max(
-            0,
-            bbox["left"] - left_padding
-        )
-
-        top = max(
-            0,
-            bbox["top"] - top_padding
-        )
-
-        right = min(
-            width,
-            bbox["right"] + right_padding
-        )
-
-        bottom = min(
-            height,
-            bbox["bottom"] + bottom_padding
-        )
-
+        left = bbox["left"]
+        top = bbox["top"]
+        right = bbox["right"]
+        bottom = bbox["bottom"]
         ##########################################################
         # Crop
         ##########################################################
@@ -151,13 +135,7 @@ class ChartCropAgent:
         # Save
         ##########################################################
 
-        crop_folder = os.path.join(
-
-            output_folder,
-
-            "cropped_charts"
-
-        )
+        
         crop_folder = os.path.join(
 
             output_folder,
@@ -211,13 +189,7 @@ class ChartCropAgent:
         chart["crop_height"] = bottom - top
 
         chart["crop_metadata"] = {
-
-            "left_padding": left_padding,
-            "right_padding": right_padding,
-            "top_padding": top_padding,
-            "bottom_padding": bottom_padding,
-            "method": "dynamic_percentage_v1"
-
+            "method": "grid_cell_crop_v1"
         }
 
         return chart
