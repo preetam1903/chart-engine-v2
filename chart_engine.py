@@ -22,22 +22,63 @@ class ChartEngine:
         image = self.image_to_base64(image_path)
 
         prompt = """
-You are an expert chart understanding engine.
+You are an expert chart digitization engine.
 
-Return ONLY valid JSON.
+Your task is NOT to summarize the chart.
 
-Extract:
+Your task is to DIGITIZE the chart exactly.
 
-- chart_type
-- title
-- x axis label
-- x axis values
-- y axis label
-- every data series
-- confidence (0-1)
+Rules:
 
-Do not explain anything.
-Do not wrap JSON inside markdown.
+1. Return ONLY valid JSON.
+2. No markdown.
+3. No explanation.
+4. Measure values using the visible Y-axis scale.
+5. Return values rounded to ONE decimal place.
+6. Preserve the order exactly as displayed.
+7. If uncertain, estimate using the Y-axis gridlines rather than guessing.
+
+Return JSON in EXACTLY this format:
+
+{
+    "chart_type":"",
+    "title":"",
+    "x_axis":{
+        "label":"",
+        "values":[]
+    },
+    "y_axis":{
+        "label":"",
+        "ticks":[]
+    },
+    "series":[
+        {
+            "name":"",
+            "values":[]
+        }
+    ],
+    "bars":[
+        {
+            "series":"",
+            "x":"",
+            "value":0.0
+        }
+    ],
+    "confidence":0.0
+}
+
+Requirements:
+
+- Read EVERY X-axis label.
+- Read EVERY Y-axis tick.
+- Detect EVERY legend entry.
+- Digitize EVERY bar.
+- Calculate the numerical value of EVERY bar using the Y-axis.
+- Do NOT skip bars.
+- Do NOT merge series.
+- If there are two bars for one category, return two entries.
+
+Accuracy is more important than speed.
 """
 
         response = client.responses.create(
