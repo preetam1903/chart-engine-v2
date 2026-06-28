@@ -63,6 +63,7 @@ if uploaded:
     extractor = BarValueExtractor()
 
     img, bars = extractor.detect_bars(image_path)
+    st.write(f"Bars detected: {len(bars)}")
 
     st.subheader("Detected Bars")
 
@@ -73,14 +74,13 @@ if uploaded:
     for i, bar in enumerate(bars):
 
         x = bar["x"]
-        y = bar["y"]
-        w = bar["w"]
-        h = bar["h"]
+        top = bar["top"]
+        bottom = bar["bottom"]
 
-        cv2.rectangle(
+        cv2.line(
             debug,
-            (x, y),
-            (x + w, y + h),
+            (x, top),
+            (x, bottom),
             (0, 255, 0),
             2
         )
@@ -88,9 +88,9 @@ if uploaded:
         cv2.putText(
             debug,
             str(i + 1),
-            (x, y - 5),
+            (x - 4, top - 5),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
+            0.4,
             (0, 0, 255),
             1
         )
