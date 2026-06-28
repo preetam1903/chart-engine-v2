@@ -2,6 +2,7 @@ import os
 
 from PIL import Image
 import json
+import streamlit as st
 
 
 
@@ -248,14 +249,7 @@ class ChartCropAgent:
 
         page_template["charts"] = updated_charts
 
-        json_path = os.path.join(
-            output_folder,
-            "page_template.json"
-        )
+        st.subheader("Page Template")
 
-        with open(json_path, "w") as f:
-            json.dump(page_template, f, indent=4)
-
-        print(f"Saved to {json_path}")
-
+        st.json(page_template)
         return page_template
