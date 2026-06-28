@@ -1,7 +1,6 @@
 streamlit
-openai
-opencv-python
-Pillow
-numpy
-pandas
 pymupdf
+pandas
+openai
+Pillow
+opencv-python-headless==4.12.0.88
