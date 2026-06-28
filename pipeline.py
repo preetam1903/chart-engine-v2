@@ -1,10 +1,10 @@
 import os
 
-from agents.header_agent import HeaderAgent
-from agents.layout_agent import LayoutAgent
-from agents.x_axis_agent import XAxisAgent
-from agents.chart_agent import ChartAgent
-from agents.validation_agent import ValidationAgent
+from header_agent import HeaderAgent
+from layout_agent import LayoutAgent
+from x_axis_agent import XAxisAgent
+from chart_agent import ChartAgent
+from validation_agent import ValidationAgent
 import shutil
 
 
