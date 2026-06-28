@@ -21,12 +21,16 @@ class AxisValidator:
             year = int(label[:4])
             week = int(label[4:])
 
-            # Fix common OCR error:
-            # 2024xx -> 2026xx
+            # Fix OCR mistakes
+
+            if year == 2023 and week >= 50:
+                year = 2025
+
             if year == 2024:
                 year = 2026
 
-            # Clamp invalid weeks
+            # Clamp week
+
             if week < 1:
                 week = 1
 
@@ -40,8 +44,6 @@ class AxisValidator:
                 corrected.append(new_label)
                 previous = new_label
 
-            # Common OCR mistake
-            if year == 2023 and week >= 50:
-                year = 2025
+            
 
         return corrected
