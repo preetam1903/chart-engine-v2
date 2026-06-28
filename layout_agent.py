@@ -117,15 +117,18 @@ You are an expert in executive dashboard analysis.
 
 Your task is to detect EVERY chart visible on this page.
 
-For each chart return:
+For every detected chart return:
 
-- chart_id (CH001, CH002...)
-- position (R1C1, R1C2...)
-- bounding box
-    - x
-    - y
-    - width
-    - height
+1. chart_id
+2. position (R1C1, R1C2...)
+3. chart_type
+4. confidence (0-100)
+5. bounding box
+    - left
+    - top
+    - right
+    - bottom
+6. includes
 
 Rules
 
@@ -133,20 +136,32 @@ Rules
 2. Ignore comments.
 3. Ignore tables.
 4. Ignore logos.
-5. Ignore legends outside charts.
-6. Return ONLY charts.
-7. A chart includes ALL of the following:
+5. Return ONLY charts.
+6. Return ONLY JSON.
+
+A chart MUST include:
 
 • Chart title
 • Complete plotting area
 • X axis
 • Left Y axis
 • Right Y axis (if present)
-• Legend inside the chart
+• Legend
 • Threshold lines
-• Target lines
+• Forecast lines
 • Trend lines
 • Data labels
+
+The bounding box MUST NOT include:
+
+• Adjacent charts
+• Page title
+• Headers
+• Footers
+• Tables
+• Logos
+
+Return ONLY valid JSON.
 
 Do NOT crop away legends or chart titles.
 
@@ -158,19 +173,59 @@ Return the smallest rectangle containing the complete chart.
 
 Example
 
+Example
+
 {
-    "page_number":1,
-    "chart_count":4,
-    "charts":[
+    "page_number": 1,
+    "chart_count": 4,
+    "charts": [
         {
-            "chart_id":"CH001",
-            "position":"R1C1",
-            "bbox":{
-                "x":20,
-                "y":40,
-                "width":380,
-                "height":220
-            }
+            "chart_id": "CH001",
+            "position": "R1C1",
+
+            "chart_type": "Unknown",
+
+            "confidence": 98,
+
+            "bbox": {
+                "left": 20,
+                "top": 40,
+                "right": 400,
+                "bottom": 260
+            },
+
+            "includes": [
+                "title",
+                "plot_area",
+                "x_axis",
+                "left_y_axis",
+                "legend"
+            ]
+        },
+
+        {
+            "chart_id": "CH002",
+            "position": "R1C2",
+
+            "chart_type": "Unknown",
+
+            "confidence": 97,
+
+            "bbox": {
+                "left": 420,
+                "top": 40,
+                "right": 800,
+                "bottom": 260
+            },
+
+            "includes": [
+                "title",
+                "plot_area",
+                "x_axis",
+                "left_y_axis",
+                "right_y_axis",
+                "legend"
+            ]
         }
     ]
 }
@@ -269,30 +324,30 @@ Example
 
             bbox = chart["bbox"]
 
-            x = int(bbox["x"])
-            y = int(bbox["y"])
-            w = int(bbox["width"])
-            h = int(bbox["height"])
+            left = int(bbox["left"])
+            top = int(bbox["top"])
+            right = int(bbox["right"])
+            bottom = int(bbox["bottom"])
 
             page_width, page_height = page.size
 
-            x = max(0, x)
-            y = max(0, y)
+            left = max(0, left)
+            top = max(0, top)
 
-            w = min(w, page_width - x)
-            h = min(h, page_height - y)
+            right = min(page_width,right)
+            bottom = min(page_height,bottom)
 
             cropped = page.crop(
 
                 (
 
-                    x,
+                    left,
 
-                    y,
+                    top,
 
-                    x + w,
+                    right,
 
-                    y + h
+                    bottom
 
                 )
 
