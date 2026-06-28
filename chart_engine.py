@@ -22,63 +22,185 @@ class ChartEngine:
         image = self.image_to_base64(image_path)
 
         prompt = """
-You are an expert chart digitization engine.
+You are an Executive Chart Intelligence Engine.
 
-Your task is NOT to summarize the chart.
+Your job is NOT to describe the chart.
 
-Your task is to DIGITIZE the chart exactly.
+Your job is to DIGITIZE the chart and convert it into structured business data.
 
-Rules:
+Return ONLY valid JSON.
 
-1. Return ONLY valid JSON.
-2. No markdown.
-3. No explanation.
-4. Measure values using the visible Y-axis scale.
-5. Return values rounded to ONE decimal place.
-6. Preserve the order exactly as displayed.
-7. If uncertain, estimate using the Y-axis gridlines rather than guessing.
+Never return markdown.
 
-Return JSON in EXACTLY this format:
+Never explain your reasoning.
+
+----------------------------------------------------
+DOCUMENT INFORMATION
+----------------------------------------------------
+
+Extract if visible:
+
+- report_name
+- page_number
+- page_title
+- section
+- sub_section
+- business_unit
+- plant
+- report_date
+
+----------------------------------------------------
+CHART INFORMATION
+----------------------------------------------------
+
+Extract:
+
+- chart_title
+- chart_subtitle
+- chart_type
+
+Possible chart types:
+
+grouped_bar
+stacked_bar
+bar_line_combo
+line
+area
+scatter
+pie
+waterfall
+pareto
+
+Determine:
+
+- orientation
+- unit
+
+----------------------------------------------------
+AXES
+----------------------------------------------------
+
+Extract:
+
+X Axis
+
+- label
+- every category
+
+Y Axis
+
+- label
+- every tick
+
+----------------------------------------------------
+LEGEND
+----------------------------------------------------
+
+Extract every legend item.
+
+For every legend return
 
 {
-    "chart_type":"",
-    "title":"",
-    "x_axis":{
-        "label":"",
-        "values":[]
-    },
-    "y_axis":{
-        "label":"",
-        "ticks":[]
-    },
-    "series":[
-        {
-            "name":"",
-            "values":[]
-        }
-    ],
-    "bars":[
-        {
-            "series":"",
-            "x":"",
-            "value":0.0
-        }
-    ],
-    "confidence":0.0
+    "name":"",
+    "render_type":"bar"
 }
 
-Requirements:
+render_type can be
 
-- Read EVERY X-axis label.
-- Read EVERY Y-axis tick.
-- Detect EVERY legend entry.
-- Digitize EVERY bar.
-- Calculate the numerical value of EVERY bar using the Y-axis.
-- Do NOT skip bars.
-- Do NOT merge series.
-- If there are two bars for one category, return two entries.
+bar
+line
+area
 
-Accuracy is more important than speed.
+----------------------------------------------------
+SERIES
+----------------------------------------------------
+
+For every legend entry return
+
+{
+    "name":"",
+    "render_type":"",
+    "values":[]
+}
+
+----------------------------------------------------
+DATA POINTS
+----------------------------------------------------
+
+For every plotted value return
+
+{
+    "series":"",
+    "category":"",
+    "value":0.0,
+    "render_type":""
+}
+
+----------------------------------------------------
+QUALITY
+----------------------------------------------------
+
+Return
+
+confidence
+
+----------------------------------------------------
+
+Return EXACTLY this JSON
+
+{
+
+"document":{
+
+"report_name":"",
+"page_number":null,
+"page_title":"",
+"section":"",
+"sub_section":"",
+"business_unit":"",
+"plant":"",
+"report_date":""
+
+},
+
+"chart":{
+
+"chart_title":"",
+"chart_subtitle":"",
+"chart_type":"",
+"orientation":"",
+"unit":"",
+"confidence":0.0
+
+},
+
+"axes":{
+
+"x":{
+
+"label":"",
+"values":[]
+
+},
+
+"y":{
+
+"label":"",
+"ticks":[]
+
+}
+
+},
+
+"legend":[],
+
+"series":[],
+
+"data_points":[],
+
+"confidence":0.0
+
+}
 """
 
         response = client.responses.create(
@@ -103,11 +225,13 @@ Accuracy is more important than speed.
         text = response.output_text.strip()
 
         try:
+
             return json.loads(text)
 
         except Exception:
 
             schema = empty_chart_schema()
+
             schema["raw_extraction"] = {
                 "response": text
             }
