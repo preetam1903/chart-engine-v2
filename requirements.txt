@@ -4,3 +4,6 @@ pillow
 python-dotenv
 opencv-python-headless
 numpy
+plotdigitizer
+matplotlib
+scipy
