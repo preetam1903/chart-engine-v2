@@ -135,7 +135,25 @@ Rules
 4. Ignore logos.
 5. Ignore legends outside charts.
 6. Return ONLY charts.
-7. Bounding boxes must tightly fit the complete chart.
+7. A chart includes ALL of the following:
+
+• Chart title
+• Complete plotting area
+• X axis
+• Left Y axis
+• Right Y axis (if present)
+• Legend inside the chart
+• Threshold lines
+• Target lines
+• Trend lines
+• Data labels
+
+Do NOT crop away legends or chart titles.
+
+Do NOT include neighbouring charts.
+
+Return the smallest rectangle containing the complete chart.
+
 8. Return JSON only.
 
 Example
