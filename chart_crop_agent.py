@@ -51,6 +51,7 @@ class ChartCropAgent:
             self,
 
             page_image,
+            page_template,
 
             chart,
 
@@ -68,20 +69,39 @@ class ChartCropAgent:
 
         width, height = page_image.size
 
-        bbox = chart["expected_bbox"]
+        layout = page_template["layout"]
+
+        grid = chart["grid"]
+
+        row = grid["row"]
+        column = grid["column"]
+
+        cell_width = layout["cell_width"]
+        cell_height = layout["cell_height"]
+
+        usable_top = layout["usable_top"]
+
+        left = int((column - 1) * cell_width)
+        top = int(usable_top + (row - 1) * cell_height)
+
+        right = int(left + cell_width)
+        bottom = int(top + cell_height)
+
+        bbox = {
+            "left": left,
+            "top": top,
+            "right": right,
+            "bottom": bottom
+        }
 
        ##########################################################
 # Calculate Dynamic Padding
 ##########################################################
 
-        chart_width = bbox["right"] - bbox["left"]
-        chart_height = bbox["bottom"] - bbox["top"]
-
-        left_padding = int(chart_width * left_ratio)
-        right_padding = int(chart_width * right_ratio)
-
-        top_padding = int(chart_height * top_ratio)
-        bottom_padding = int(chart_height * bottom_ratio)
+        left = bbox["left"]
+        top = bbox["top"]
+        right = bbox["right"]
+        bottom = bbox["bottom"]
 
 ##########################################################
 # Expand Expected Box
@@ -136,6 +156,13 @@ class ChartCropAgent:
             output_folder,
 
             "cropped_charts"
+
+        )
+        crop_folder = os.path.join(
+
+            output_folder,
+
+            "grid_cell_crops"
 
         )
 
@@ -230,6 +257,7 @@ class ChartCropAgent:
             updated_chart = self.crop_chart(
 
                 page_image=page_image,
+                page_template=page_template,
 
                 chart=chart,
 
