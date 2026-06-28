@@ -40,4 +40,8 @@ class AxisValidator:
                 corrected.append(new_label)
                 previous = new_label
 
+            # Common OCR mistake
+            if year == 2023 and week >= 50:
+                year = 2025
+
         return corrected
