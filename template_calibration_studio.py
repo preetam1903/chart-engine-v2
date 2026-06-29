@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image
 import streamlit.components.v1 as components
+import base64
 
 
 class TemplateCalibrationStudio:
@@ -146,13 +147,20 @@ class TemplateCalibrationStudio:
         st.subheader("🧪 Calibration Canvas Prototype")
         
         
-        html = """
+
+        with open(page_template["grid_preview"], "rb") as f:
+            img_base64 = base64.b64encode(f.read()).decode()
+        html = f"""
 <div style="
 width:100%;
-height:500px;
+height:900px;
 border:2px solid green;
 position:relative;
-background:#f8f8f8;
+
+background-image:url('data:image/png;base64,{img_base64}');
+background-size:contain;
+background-repeat:no-repeat;
+background-position:center;
 ">
 
 <div
