@@ -61,24 +61,14 @@ class TemplateCalibrationStudio:
         # Layout
         ##############################################################
 
-        left, right = st.columns([3,2])
+        right = st.container()
 
-        ##############################################################
-        # LEFT PANEL
-        ##############################################################
-
-        with left:
-
-            st.subheader("PDF Page")
-
-            st.info(
-                "Move the green boxes if required."
-            )
+       
 
         ##############################################################
         # RIGHT PANEL
         ##############################################################
-
+        st.subheader("Calibration Canvas")
         with right:
 
             st.subheader("Selected Chart")
@@ -294,7 +284,7 @@ class TemplateCalibrationStudio:
 
         st.markdown("---")
 
-        st.subheader("Calibration Canvas")
+        
 
         ##############################################################
         # Load Background Image
@@ -400,7 +390,7 @@ class TemplateCalibrationStudio:
 
         </html>
         """
-
+        st.warning("Temporary: Canvas is view-only.")
         components.html(
 
             html,
