@@ -1,5 +1,6 @@
 import streamlit as st
 from PIL import Image
+import streamlit.components.v1 as components
 
 
 class TemplateCalibrationStudio:
@@ -140,5 +141,50 @@ class TemplateCalibrationStudio:
         with right:
 
             st.button("Next ➡")
+
+        st.markdown("---")
+        st.subheader("🧪 Calibration Canvas Prototype")
+
+        html = """
+<div style="
+width:100%;
+height:500px;
+border:2px solid #008000;
+position:relative;
+background:#f8f8f8;
+">
+
+<div style="
+position:absolute;
+left:80px;
+top:80px;
+width:220px;
+height:280px;
+border:3px solid green;
+background:rgba(0,255,0,0.08);
+">
+CH001
+</div>
+
+<div style="
+position:absolute;
+left:350px;
+top:80px;
+width:220px;
+height:280px;
+border:3px solid green;
+background:rgba(0,255,0,0.08);
+">
+CH002
+</div>
+
+</div>
+"""
+
+        components.html(
+            html,
+            height=520,
+            scrolling=False
+        )
 
         return page_template
