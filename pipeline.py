@@ -128,21 +128,21 @@ class ChartExtractionPipeline:
 
         st.success("Calibration Completed (Demo Mode)")
         
-        if st.button("🚀 Process CH001"):
+        if st.session_state.get("run_ai", False):
 
-            understanding = self.chart_understanding_agent.process(chart_image)
+            st.session_state["run_ai"] = False
 
-            x_axis = self.x_axis_agent.process(chart_image)
+            chart_image = st.session_state["selected_chart_path"]
 
-            values = self.y_value_agent.process(chart_image)
+            st.success("Processing CH001")
 
-            repository = ...
+            understanding = self.chart_understanding_agent.process(
+                chart_image
+            )
 
             st.json(understanding)
 
-            st.json(x_axis)
-
-            st.json(values)
+            st.stop()
         
 
 ##############################################################
