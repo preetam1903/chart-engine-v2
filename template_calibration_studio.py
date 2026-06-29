@@ -150,14 +150,14 @@ class TemplateCalibrationStudio:
 
         with open(page_template["grid_preview"], "rb") as f:
             img_base64 = base64.b64encode(f.read()).decode()
-        html = f"""
+        html = """
 <div style="
 width:100%;
 height:900px;
 border:2px solid green;
 position:relative;
 
-background-image:url('data:image/png;base64,{img_base64}');
+background-image:url('data:image/png;base64,IMAGE_PLACEHOLDER');
 background-size:contain;
 background-repeat:no-repeat;
 background-position:center;
@@ -234,7 +234,10 @@ document.onmouseup=function(){
 
 </div>
 """
-
+        html = html.replace(
+            "IMAGE_PLACEHOLDER",
+            img_base64
+        )
         components.html(
             html,
             height=520,
