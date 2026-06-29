@@ -148,7 +148,7 @@ class TemplateCalibrationStudio:
         
         
 
-        with open(page_template["grid_preview"], "rb") as f:
+        with open(page_template["page_image"], "rb") as f:
             img_base64 = base64.b64encode(f.read()).decode()
 
         
