@@ -194,7 +194,11 @@ class TemplateCalibrationStudio:
                 st.session_state["selected_chart_path"] = crop_path
                 st.session_state["run_ai"] = True
 
-                st.rerun()
+                st.session_state["run_ai"] = True
+
+                return page_template
+
+            
 
                 ######################################################
                 # Save Crop
