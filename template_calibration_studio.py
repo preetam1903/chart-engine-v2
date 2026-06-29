@@ -200,59 +200,6 @@ class TemplateCalibrationStudio:
 
             
 
-                ######################################################
-                # Save Crop
-                ######################################################
-
-                temp_folder = os.path.join(
-
-                    os.path.dirname(
-
-                        page_template["page_image"]
-
-                    ),
-
-                    "selected_chart"
-
-                )
-
-                os.makedirs(
-
-                    temp_folder,
-
-                    exist_ok=True
-
-                )
-
-                crop_path = os.path.join(
-
-                    temp_folder,
-
-                    f"{chart['chart_id']}.png"
-
-                )
-
-                crop.save(
-
-                    crop_path
-
-                )
-
-                st.success(
-
-                    f"Saved : {crop_path}"
-
-                )
-
-                ######################################################
-                # Store for App
-                ######################################################
-
-                st.session_state["selected_chart"] = chart
-
-                st.session_state["selected_chart_path"] = crop_path
-
-                st.session_state["run_ai"] = True
 
         ##############################################################
         # PART 2 STARTS HERE

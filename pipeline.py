@@ -121,9 +121,24 @@ class ChartExtractionPipeline:
 
         # TEMPORARY FOR DEMO
 
-        page_template = self.template_calibration.show(
-            page_template
-        )
+        if not st.session_state.get("calibration_done", False):
+            page_template = self.template_calibration.show(page_template)
+
+            if st.session_state.get("run_ai", False):
+
+                st.session_state["run_ai"] = False
+
+                chart_image = st.session_state["selected_chart_path"]
+
+                st.success(f"Processing {chart_image}")
+
+                understanding = self.chart_understanding_agent.process(chart_image)
+
+                st.json(understanding)
+
+                st.stop()
+        else:
+            st.success("Calibration Completed")
 
 
         st.success("Calibration Completed (Demo Mode)")
