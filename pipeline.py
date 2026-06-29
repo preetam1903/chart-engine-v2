@@ -121,12 +121,27 @@ class ChartExtractionPipeline:
 
         # TEMPORARY FOR DEMO
 
-# page_template = self.template_calibration.show(
-#     page_template
+        #page_template = self.template_calibration.show(
+            #page_template
 # )
 
 
         st.success("Calibration Completed (Demo Mode)")
+        if st.button("🚀 Process CH001"):
+
+            understanding = self.chart_understanding_agent.process(chart_image)
+
+            x_axis = self.x_axis_agent.process(chart_image)
+
+            values = self.y_value_agent.process(chart_image)
+
+            repository = ...
+
+            st.json(understanding)
+
+            st.json(x_axis)
+
+            st.json(values)
         
 
 ##############################################################
