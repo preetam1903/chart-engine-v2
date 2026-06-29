@@ -20,7 +20,7 @@ class TemplateCalibrationStudio:
             self,
             page_template
     ):
-
+        st.error("🚨 NEW TEMPLATE CALIBRATION FILE LOADED")
         st.markdown("# 🛠 Template Calibration Studio")
 
         ##############################################################
