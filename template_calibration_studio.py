@@ -144,17 +144,50 @@ class TemplateCalibrationStudio:
 
         st.markdown("---")
         st.subheader("🧪 Calibration Canvas Prototype")
+        <script>
 
+        const box=document.getElementById("box1");
+
+        let active=false;
+
+        let offsetX=0;
+
+        let offsetY=0;
+
+        box.onmousedown=function(e){
+
+        active=true;
+
+        offsetX=e.offsetX;
+
+        offsetY=e.offsetY;
+
+        }
+
+        document.onmousemove=function(e){
+
+        if(!active) return;
+
+        box.style.left=(e.pageX-offsetX)+"px";
+
+        box.style.top=(e.pageY-offsetY)+"px";
+
+        }
+
+        document.onmouseup=function(){
+
+        active=false;
+
+        }
+
+        </script>
+
+
+        
         html = """
-<div style="
-width:100%;
-height:500px;
-border:2px solid #008000;
-position:relative;
-background:#f8f8f8;
-">
-
-<div style="
+<div
+id="box1"
+style="
 position:absolute;
 left:80px;
 top:80px;
@@ -162,8 +195,12 @@ width:220px;
 height:280px;
 border:3px solid green;
 background:rgba(0,255,0,0.08);
+cursor:move;
+user-select:none;
 ">
+
 CH001
+
 </div>
 
 <div style="
