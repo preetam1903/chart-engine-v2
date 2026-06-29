@@ -18,7 +18,7 @@ class TemplateCalibrationStudio:
 
             st.markdown("### PDF Page")
 
-            image = Image.open(page_template["page_image"])
+            image = Image.open(page_template["grid_preview"])
 
             st.image(
                 image,

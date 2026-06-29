@@ -107,6 +107,7 @@ class ChartExtractionPipeline:
             page_template,
             output_folder
         )
+        page_template["grid_preview"] = preview_image
 
         page_template = self.template_calibration.show(
             page_template
