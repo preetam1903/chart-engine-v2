@@ -1,4 +1,5 @@
 import os
+import json
 
 from header_agent import HeaderAgent
 #from layout_agent import LayoutAgent
@@ -11,6 +12,7 @@ from page_template_agent import PageTemplateAgent
 from grid_preview_agent import GridPreviewAgent
 from chart_crop_agent import ChartCropAgent
 from template_calibration_studio import TemplateCalibrationStudio
+from chart_understanding_agent import ChartUnderstandingAgent
 
 
 class ChartExtractionPipeline:
@@ -38,6 +40,9 @@ class ChartExtractionPipeline:
         self.xaxis_agent = XAxisAgent(api_key)
 
         self.chart_agent = ChartAgent(api_key)
+        self.chart_understanding_agent = ChartUnderstandingAgent(
+            api_key
+        )
 
         self.validation_agent = ValidationAgent()
 
@@ -98,6 +103,8 @@ class ChartExtractionPipeline:
 
         )
 
+        
+
 ##############################################################
 # STEP 3.1
 # Grid Preview
@@ -125,6 +132,27 @@ class ChartExtractionPipeline:
             output_folder
 
         )
+
+        ##############################################################
+# STEP 4.1
+# Process CH001
+##############################################################
+
+        chart_image = page_template["charts"][0]["image"]
+
+        understanding = self.chart_understanding_agent.process(
+            chart_image
+        )
+
+        page_template["charts"][0]["understanding"] = understanding
+
+        
+
+        print("=" * 80)
+        print("CH001 UNDERSTANDING")
+        print("=" * 80)
+        print(json.dumps(understanding, indent=4))
+        print("=" * 80)
 
 
         
