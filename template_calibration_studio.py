@@ -59,7 +59,16 @@ class TemplateCalibrationStudio:
 
             st.markdown("### Crop Preview")
 
-            crop_image = Image.open(chart["image"])
+            page = Image.open(page_template["page_image"])
+
+            bbox = chart["expected_bbox"]
+
+            crop_image = page.crop((
+                bbox["left"],
+                bbox["top"],
+                bbox["right"],
+                bbox["bottom"]
+            ))
 
             st.image(
                 crop_image,
