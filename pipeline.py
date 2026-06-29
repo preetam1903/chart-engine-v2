@@ -140,9 +140,26 @@ class ChartExtractionPipeline:
 
         chart_image = page_template["charts"][0]["image"]
 
-        understanding = self.chart_understanding_agent.process(
-            chart_image
-        )
+        print("=" * 80)
+        print("STARTING CHART UNDERSTANDING")
+        print(chart_image)
+        print("=" * 80)
+
+        try:
+
+            understanding = self.chart_understanding_agent.process(
+                chart_image
+            )
+
+            print("SUCCESS")
+
+        except Exception as e:
+
+            print("FAILED")
+            print(type(e))
+            print(e)
+
+            raise
 
         page_template["charts"][0]["understanding"] = understanding
 
