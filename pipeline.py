@@ -1,5 +1,6 @@
 import os
 import json
+import streamlit as st
 
 from header_agent import HeaderAgent
 #from layout_agent import LayoutAgent
@@ -115,10 +116,13 @@ class ChartExtractionPipeline:
             output_folder
         )
         page_template["grid_preview"] = preview_image
+        
+        st.warning("Reached Calibration Studio")
 
         page_template = self.template_calibration.show(
             page_template
         )
+        st.warning("Calibration Studio Returned")
 
 ##############################################################
 # STEP 4
