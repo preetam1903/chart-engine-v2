@@ -2,50 +2,86 @@ import streamlit as st
 from PIL import Image
 import streamlit.components.v1 as components
 import base64
+import json
+import os
 
 
 class TemplateCalibrationStudio:
 
-    def show(self, page_template):
+    def __init__(self):
 
-        st.markdown("## 🛠 Template Calibration Studio")
+        self.selected_chart = None
 
-        top_left, top_right = st.columns([3, 2])
+    ##############################################################
+    # Main Screen
+    ##############################################################
 
-        ###################################################
-        # LEFT
-        ###################################################
+    def show(
+            self,
+            page_template
+    ):
 
-        with top_left:
+        st.markdown("# 🛠 Template Calibration Studio")
 
-            st.markdown("### PDF Page")
+        ##############################################################
+        # Chart Selector
+        ##############################################################
 
-            st.info("Interactive calibration canvas is shown below.")
+        chart_ids = [
 
-        ###################################################
-        # RIGHT
-        ###################################################
+            c["chart_id"]
 
-        with top_right:
+            for c in page_template["charts"]
 
-            st.markdown("### Selected Panel")
+        ]
 
-            selected = st.selectbox(
+        selected_chart = st.selectbox(
 
-                "Choose Chart",
+            "Select Chart",
 
-                [c["chart_id"] for c in page_template["charts"]]
+            chart_ids,
 
+            index=0
+
+        )
+
+        chart = next(
+
+            c
+
+            for c in page_template["charts"]
+
+            if c["chart_id"] == selected_chart
+
+        )
+
+        self.selected_chart = chart
+
+        ##############################################################
+        # Layout
+        ##############################################################
+
+        left, right = st.columns([3,2])
+
+        ##############################################################
+        # LEFT PANEL
+        ##############################################################
+
+        with left:
+
+            st.subheader("PDF Page")
+
+            st.info(
+                "Move the green boxes if required."
             )
 
-            chart = next(
+        ##############################################################
+        # RIGHT PANEL
+        ##############################################################
 
-                c for c in page_template["charts"]
+        with right:
 
-                if c["chart_id"] == selected
-
-            )
-            st.markdown("### Selected Panel")
+            st.subheader("Selected Chart")
 
             st.success(
 
@@ -53,254 +89,333 @@ class TemplateCalibrationStudio:
 
             )
 
-            st.markdown("### AI Understanding")
+            ##########################################################
+            # Crop Preview
+            ##########################################################
 
-            st.info("Chart Title : Detecting...")
+            page = Image.open(
 
-            st.info("Chart Type : Detecting...")
+                page_template["page_image"]
 
-            st.info("Business Area : Detecting...")
-
-            st.info("Confidence : 98%")
-
-
-# ---------------------------------
-# Crop Preview
-# ---------------------------------
-
-            st.markdown("### Crop Preview")
-
-            page = Image.open(page_template["page_image"])
+            )
 
             bbox = chart["expected_bbox"]
 
-            crop_image = page.crop((
-                bbox["left"],
-                bbox["top"],
-                bbox["right"],
-                bbox["bottom"]
-            ))
+            crop = page.crop(
+
+                (
+
+                    bbox["left"],
+
+                    bbox["top"],
+
+                    bbox["right"],
+
+                    bbox["bottom"]
+
+                )
+
+            )
 
             st.image(
-                crop_image,
+
+                crop,
+
                 use_container_width=True
+
             )
+
+            ##########################################################
+            # Panel Details
+            ##########################################################
 
             st.markdown("---")
 
-
-# ---------------------------------
-# Panel Information
-# ---------------------------------
-
-            bbox = chart["expected_bbox"]
-
             width = bbox["right"] - bbox["left"]
+
             height = bbox["bottom"] - bbox["top"]
 
-            st.markdown("### Panel Information")
+            c1, c2 = st.columns(2)
 
-            col1, col2 = st.columns(2)
+            with c1:
 
-            with col1:
-                st.metric("Width", width)
+                st.metric(
 
-            with col2:
-                st.metric("Height", height)
+                    "Width",
 
-            st.write(f"**Position:** {chart['position']}")
+                    width
 
-            st.success("🟢 Ready for Calibration")
+                )
 
+            with c2:
 
-            
+                st.metric(
 
-                    ###################################################
-        # Bottom
-        ###################################################
+                    "Height",
+
+                    height
+
+                )
+
+            st.write(
+
+                f"Position : {chart['position']}"
+
+            )
+
+            st.success(
+
+                "Ready"
+            )
+
+            ##########################################################
+            # PROCESS BUTTON
+            ##########################################################
+
+            st.markdown("---")
+
+            process = st.button(
+
+                "🚀 Process Selected Chart",
+
+                use_container_width=True,
+
+                type="primary"
+
+            )
+
+            if process:
+
+                st.success(
+
+                    "Processing Started..."
+                )
+
+                st.info(
+
+                    "Chart Understanding"
+                )
+
+                st.info(
+
+                    "X Axis Validation"
+                )
+
+                st.info(
+
+                    "Y Value Extraction"
+                )
+
+                st.info(
+
+                    "Repository Update"
+                )
+
+                st.info(
+
+                    "Executive Intelligence"
+                )
+
+                ######################################################
+                # Save Crop
+                ######################################################
+
+                temp_folder = os.path.join(
+
+                    os.path.dirname(
+
+                        page_template["page_image"]
+
+                    ),
+
+                    "selected_chart"
+
+                )
+
+                os.makedirs(
+
+                    temp_folder,
+
+                    exist_ok=True
+
+                )
+
+                crop_path = os.path.join(
+
+                    temp_folder,
+
+                    f"{chart['chart_id']}.png"
+
+                )
+
+                crop.save(
+
+                    crop_path
+
+                )
+
+                st.success(
+
+                    f"Saved : {crop_path}"
+
+                )
+
+                ######################################################
+                # Store for App
+                ######################################################
+
+                st.session_state["selected_chart"] = chart
+
+                st.session_state["selected_chart_path"] = crop_path
+
+                st.session_state["run_ai"] = True
+
+        ##############################################################
+        # PART 2 STARTS HERE
+        ##############################################################
+                ##############################################################
+        # Navigation
+        ##############################################################
 
         st.markdown("---")
 
-        left, middle, right = st.columns([1,2,1])
+        c1, c2, c3 = st.columns([1,2,1])
 
-        with left:
-
+        with c1:
             st.button("⬅ Previous")
 
-        with middle:
-
+        with c2:
             st.button(
                 "✅ Approve Layout",
                 use_container_width=True
             )
 
-        with right:
-
+        with c3:
             st.button("Next ➡")
 
         st.markdown("---")
-        st.subheader("🧪 Calibration Canvas Prototype")
-        
-        
+
+        st.subheader("Calibration Canvas")
 
         ##############################################################
-# Load Original PDF Page
-##############################################################
+        # Load Background Image
+        ##############################################################
 
         with open(page_template["page_image"], "rb") as f:
-            img_base64 = base64.b64encode(f.read()).decode()
+            img_base64 = base64.b64encode(
+                f.read()
+            ).decode()
 
-
-##############################################################
-# Display Size
-##############################################################
+        ##############################################################
+        # Display Size
+        ##############################################################
 
         DISPLAY_WIDTH = 1500
         DISPLAY_HEIGHT = 1060
 
-
-##############################################################
-# Original PDF Size
-##############################################################
+        ##############################################################
+        # Original PDF Size
+        ##############################################################
 
         PAGE_WIDTH = page_template["layout"]["page_width"]
         PAGE_HEIGHT = page_template["layout"]["page_height"]
 
-
-##############################################################
-# Scale
-##############################################################
-
         scale_x = DISPLAY_WIDTH / PAGE_WIDTH
         scale_y = DISPLAY_HEIGHT / PAGE_HEIGHT
 
-
-##############################################################
-# Draw Boxes
-##############################################################
+        ##############################################################
+        # Build HTML Boxes
+        ##############################################################
 
         html_boxes = ""
 
-        for chart in page_template["charts"]:
+        for c in page_template["charts"]:
 
-            bbox = chart["expected_bbox"]
+            bbox = c["expected_bbox"]
 
             left = int(bbox["left"] * scale_x)
             top = int(bbox["top"] * scale_y)
 
-            width = int((bbox["right"] - bbox["left"]) * scale_x)
-            height = int((bbox["bottom"] - bbox["top"]) * scale_y)
+            width = int(
+                (bbox["right"] - bbox["left"]) * scale_x
+            )
+
+            height = int(
+                (bbox["bottom"] - bbox["top"]) * scale_y
+            )
+
+            color = "#ff6600" if c["chart_id"] == selected_chart else "#00aa00"
 
             html_boxes += f"""
-            <div
-            class="chartBox"
-            id="{chart['chart_id']}"
-            style="
-            position:absolute;
-            left:{left}px;
-            top:{top}px;
-            width:{width}px;
-            height:{height}px;
-            border:3px solid #00aa00;
-            background:rgba(0,255,0,0.08);
-            box-sizing:border-box;
-            cursor:move;
-            user-select:none;
-            ">
+            <div class='chartBox'
+                style='
+                position:absolute;
+                left:{left}px;
+                top:{top}px;
+                width:{width}px;
+                height:{height}px;
+                border:3px solid {color};
+                background:rgba(0,255,0,0.08);
+                resize:both;
+                overflow:auto;
+                cursor:move;
+                box-sizing:border-box;'>
 
-            <div style="
-            background:#00aa00;
-            color:white;
-            padding:4px;
-            font-family:Arial;
-            font-size:12px;
-            font-weight:bold;
-            ">
+                <div style='
+                    background:{color};
+                    color:white;
+                    padding:4px;
+                    font-size:12px;
+                    font-weight:bold;'>
 
-            {chart['chart_id']}
+                    {c["chart_id"]}
 
-            </div>
+                </div>
 
             </div>
             """
 
-        html = """
-        <div style="
-        width:1500px;
-        height:1060px;
-        border:2px solid green;
-        position:relative;
+        ##############################################################
+        # HTML
+        ##############################################################
 
-        background-image:url('data:image/png;base64,IMAGE_PLACEHOLDER');
-        background-size:1500px 1060px;
-        background-repeat:no-repeat;
-        background-position:center;
-        ">
+        html = f"""
+        <html>
 
-        BOXES_HERE
+        <body>
 
-        <script>
+        <div style='
+            width:{DISPLAY_WIDTH}px;
+            height:{DISPLAY_HEIGHT}px;
+            position:relative;
+            border:2px solid green;
+            background-image:url("data:image/png;base64,{img_base64}");
+            background-size:{DISPLAY_WIDTH}px {DISPLAY_HEIGHT}px;
+            overflow:hidden;'>
 
-        let activeBox = null;
-        let offsetX = 0;
-        let offsetY = 0;
-
-        document.querySelectorAll(".chartBox").forEach(function(box){
-
-            box.addEventListener("mousedown", function(e){
-
-                activeBox = box;
-
-                offsetX = e.offsetX;
-                offsetY = e.offsetY;
-
-            });
-
-        });
-
-        document.addEventListener("mousemove", function(e){
-
-            if(activeBox == null)
-                return;
-
-            const parent = activeBox.parentElement.getBoundingClientRect();
-
-            let newLeft = e.clientX - parent.left - offsetX;
-            let newTop = e.clientY - parent.top - offsetY;
-
-            newLeft = Math.max(0, newLeft);
-            newTop = Math.max(0, newTop);
-
-            activeBox.style.left = newLeft + "px";
-            activeBox.style.top = newTop + "px";
-
-        });
-
-        document.addEventListener("mouseup", function(){
-
-            activeBox = null;
-
-        });
-
-        </script>
+            {html_boxes}
 
         </div>
+
+        </body>
+
+        </html>
         """
 
-        html = html.replace(
-            "IMAGE_PLACEHOLDER",
-            img_base64
-        )
-
-        html = html.replace(
-            "BOXES_HERE",
-            html_boxes
-        )
-
         components.html(
+
             html,
+
             height=1100,
-            scrolling=False
+
+            scrolling=True
+
         )
+
+        ##############################################################
+        # Return
+        ##############################################################
 
         return page_template
+
+                
