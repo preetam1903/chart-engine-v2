@@ -35,7 +35,7 @@ class TemplateCalibrationStudio:
 
             selected = st.selectbox(
 
-                "Choose Panel",
+                "Choose Chart",
 
                 [c["chart_id"] for c in page_template["charts"]]
 
@@ -50,7 +50,21 @@ class TemplateCalibrationStudio:
             )
             st.markdown("### Selected Panel")
 
-            st.success(chart["chart_id"])
+            st.success(
+
+                f"{chart['chart_id']}   |   {chart['position']}"
+
+            )
+
+            st.markdown("### AI Understanding")
+
+            st.info("Chart Title : Detecting...")
+
+            st.info("Chart Type : Detecting...")
+
+            st.info("Business Area : Detecting...")
+
+            st.info("Confidence : 98%")
 
 
 # ---------------------------------
