@@ -2,6 +2,10 @@ import os
 import tempfile
 import streamlit as st
 
+st.error("APP VERSION 999")
+st.write(__file__)
+st.write(os.getcwd())
+
 from pipeline import ChartExtractionPipeline
 
 
