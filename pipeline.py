@@ -10,6 +10,7 @@ from page_template_agent import PageTemplateAgent
 
 from grid_preview_agent import GridPreviewAgent
 from chart_crop_agent import ChartCropAgent
+from template_calibration_studio import TemplateCalibrationStudio
 
 
 class ChartExtractionPipeline:
@@ -27,6 +28,7 @@ class ChartExtractionPipeline:
     ):
 
         self.header_agent = HeaderAgent(api_key)
+        self.template_calibration = TemplateCalibrationStudio()
 
         self.page_template_agent = PageTemplateAgent()
 
@@ -104,6 +106,10 @@ class ChartExtractionPipeline:
         preview_image = self.grid_preview_agent.process(
             page_template,
             output_folder
+        )
+
+        page_template = self.template_calibration.show(
+            page_template
         )
 
 ##############################################################
