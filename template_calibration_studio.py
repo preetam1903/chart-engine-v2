@@ -192,29 +192,37 @@ class TemplateCalibrationStudio:
             height = int((bbox["bottom"] - bbox["top"]) * scale_y)
 
             html_boxes += f"""
-        <div
-        class="chartBox"
-        id="{chart['chart_id']}"
-        style="
-        position:absolute;
-        left:{left}px;
-        top:{top}px;
-        width:{width}px;
-        height:{height}px;
-        border:3px solid #00aa00;
-        background:rgba(0,255,0,0.08);
-        box-sizing:border-box;
-        font-family:Arial;
-        font-size:14px;
-        font-weight:bold;
-        cursor:move;
-        user-select:none;
-        ">
+            <div
+            class="chartBox"
+            id="{chart['chart_id']}"
+            style="
+            position:absolute;
+            left:{left}px;
+            top:{top}px;
+            width:{width}px;
+            height:{height}px;
+            border:3px solid #00aa00;
+            background:rgba(0,255,0,0.08);
+            box-sizing:border-box;
+            cursor:move;
+            user-select:none;
+            ">
 
-        {chart['chart_id']}
+            <div style="
+            background:#00aa00;
+            color:white;
+            padding:4px;
+            font-family:Arial;
+            font-size:12px;
+            font-weight:bold;
+            ">
 
-        </div>
-        """
+            {chart['chart_id']}
+
+            </div>
+
+            </div>
+            """
 
         html = """
         <div style="
@@ -257,11 +265,14 @@ class TemplateCalibrationStudio:
 
             const parent = activeBox.parentElement.getBoundingClientRect();
 
-            activeBox.style.left =
-                (e.clientX - parent.left - offsetX) + "px";
+            let newLeft = e.clientX - parent.left - offsetX;
+            let newTop = e.clientY - parent.top - offsetY;
 
-            activeBox.style.top =
-                (e.clientY - parent.top - offsetY) + "px";
+            newLeft = Math.max(0, newLeft);
+            newTop = Math.max(0, newTop);
+
+            activeBox.style.left = newLeft + "px";
+            activeBox.style.top = newTop + "px";
 
         });
 
@@ -288,7 +299,7 @@ class TemplateCalibrationStudio:
 
         components.html(
             html,
-            height=900,
+            height=1100,
             scrolling=False
         )
 
