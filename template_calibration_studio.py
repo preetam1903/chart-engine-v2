@@ -48,16 +48,54 @@ class TemplateCalibrationStudio:
                 if c["chart_id"] == selected
 
             )
+            st.markdown("### Selected Panel")
 
-            st.markdown("### Coordinates")
+            st.success(chart["chart_id"])
 
-            st.json(chart["expected_bbox"])
+
+# ---------------------------------
+# Crop Preview
+# ---------------------------------
+
+            st.markdown("### Crop Preview")
+
+            crop_image = Image.open(chart["image"])
+
+            st.image(
+                crop_image,
+                use_container_width=True
+            )
 
             st.markdown("---")
 
-            st.info("Crop Preview Coming Next")
 
-        ###################################################
+# ---------------------------------
+# Panel Information
+# ---------------------------------
+
+            bbox = chart["expected_bbox"]
+
+            width = bbox["right"] - bbox["left"]
+            height = bbox["bottom"] - bbox["top"]
+
+            st.markdown("### Panel Information")
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.metric("Width", width)
+
+            with col2:
+                st.metric("Height", height)
+
+            st.write(f"**Position:** {chart['position']}")
+
+            st.success("🟢 Ready for Calibration")
+
+
+            
+
+                    ###################################################
         # Bottom
         ###################################################
 
