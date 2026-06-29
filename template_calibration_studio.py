@@ -1,36 +1,83 @@
 import streamlit as st
 from PIL import Image
-from streamlit_drawable_canvas import st_canvas
 
 
 class TemplateCalibrationStudio:
 
     def show(self, page_template):
 
-        st.subheader("🛠 Template Calibration Studio")
+        st.markdown("## 🛠 Template Calibration Studio")
 
-        image = Image.open(page_template["page_image"])
+        top_left, top_right = st.columns([3, 2])
 
-        canvas_result = st_canvas(
+        ###################################################
+        # LEFT
+        ###################################################
 
-            fill_color="rgba(0,255,0,0.2)",
+        with top_left:
 
-            stroke_width=2,
+            st.markdown("### PDF Page")
 
-            stroke_color="#00ff00",
+            image = Image.open(page_template["page_image"])
 
-            background_image=image,
+            st.image(
+                image,
+                use_container_width=True
+            )
 
-            update_streamlit=True,
+        ###################################################
+        # RIGHT
+        ###################################################
 
-            drawing_mode="rect",
+        with top_right:
 
-            height=image.height,
+            st.markdown("### Selected Panel")
 
-            width=image.width,
+            selected = st.selectbox(
 
-            key="template_canvas"
+                "Choose Panel",
 
-        )
+                [c["chart_id"] for c in page_template["charts"]]
+
+            )
+
+            chart = next(
+
+                c for c in page_template["charts"]
+
+                if c["chart_id"] == selected
+
+            )
+
+            st.markdown("### Coordinates")
+
+            st.json(chart["expected_bbox"])
+
+            st.markdown("---")
+
+            st.info("Crop Preview Coming Next")
+
+        ###################################################
+        # Bottom
+        ###################################################
+
+        st.markdown("---")
+
+        left, middle, right = st.columns([1,2,1])
+
+        with left:
+
+            st.button("⬅ Previous")
+
+        with middle:
+
+            st.button(
+                "✅ Approve Layout",
+                use_container_width=True
+            )
+
+        with right:
+
+            st.button("Next ➡")
 
         return page_template
