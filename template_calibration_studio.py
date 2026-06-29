@@ -20,12 +20,7 @@ class TemplateCalibrationStudio:
 
             st.markdown("### PDF Page")
 
-            image = Image.open(page_template["grid_preview"])
-
-            st.image(
-                image,
-                use_container_width=True
-            )
+            st.info("Interactive calibration canvas is shown below.")
 
         ###################################################
         # RIGHT
@@ -148,20 +143,53 @@ class TemplateCalibrationStudio:
         
         
 
+        ##############################################################
+# Load Original PDF Page
+##############################################################
+
         with open(page_template["page_image"], "rb") as f:
             img_base64 = base64.b64encode(f.read()).decode()
 
-        
+
+##############################################################
+# Display Size
+##############################################################
+
+        DISPLAY_WIDTH = 1500
+        DISPLAY_HEIGHT = 1060
+
+
+##############################################################
+# Original PDF Size
+##############################################################
+
+        PAGE_WIDTH = page_template["layout"]["page_width"]
+        PAGE_HEIGHT = page_template["layout"]["page_height"]
+
+
+##############################################################
+# Scale
+##############################################################
+
+        scale_x = DISPLAY_WIDTH / PAGE_WIDTH
+        scale_y = DISPLAY_HEIGHT / PAGE_HEIGHT
+
+
+##############################################################
+# Draw Boxes
+##############################################################
+
         html_boxes = ""
 
         for chart in page_template["charts"]:
 
             bbox = chart["expected_bbox"]
 
-            left = bbox["left"]
-            top = bbox["top"]
-            width = bbox["right"] - bbox["left"]
-            height = bbox["bottom"] - bbox["top"]
+            left = int(bbox["left"] * scale_x)
+            top = int(bbox["top"] * scale_y)
+
+            width = int((bbox["right"] - bbox["left"]) * scale_x)
+            height = int((bbox["bottom"] - bbox["top"]) * scale_y)
 
             html_boxes += f"""
         <div
@@ -173,8 +201,12 @@ class TemplateCalibrationStudio:
         top:{top}px;
         width:{width}px;
         height:{height}px;
-        border:3px solid green;
+        border:3px solid #00aa00;
         background:rgba(0,255,0,0.08);
+        box-sizing:border-box;
+        font-family:Arial;
+        font-size:14px;
+        font-weight:bold;
         cursor:move;
         user-select:none;
         ">
@@ -186,13 +218,13 @@ class TemplateCalibrationStudio:
 
         html = """
         <div style="
-        width:100%;
-        height:900px;
+        width:1500px;
+        height:1060px;
         border:2px solid green;
         position:relative;
 
         background-image:url('data:image/png;base64,IMAGE_PLACEHOLDER');
-        background-size:contain;
+        background-size:1500px 1060px;
         background-repeat:no-repeat;
         background-position:center;
         ">
