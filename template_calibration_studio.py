@@ -176,35 +176,25 @@ class TemplateCalibrationStudio:
 
             if process:
 
-                st.success(
-
-                    "Processing Started..."
+                temp_folder = os.path.join(
+                    os.path.dirname(page_template["page_image"]),
+                    "selected_chart"
                 )
 
-                st.info(
+                os.makedirs(temp_folder, exist_ok=True)
 
-                    "Chart Understanding"
+                crop_path = os.path.join(
+                    temp_folder,
+                    f"{chart['chart_id']}.png"
                 )
 
-                st.info(
+                crop.save(crop_path)
 
-                    "X Axis Validation"
-                )
+                st.session_state["selected_chart"] = chart
+                st.session_state["selected_chart_path"] = crop_path
+                st.session_state["run_ai"] = True
 
-                st.info(
-
-                    "Y Value Extraction"
-                )
-
-                st.info(
-
-                    "Repository Update"
-                )
-
-                st.info(
-
-                    "Executive Intelligence"
-                )
+                st.rerun()
 
                 ######################################################
                 # Save Crop
