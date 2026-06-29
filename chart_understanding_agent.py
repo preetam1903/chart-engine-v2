@@ -1,5 +1,6 @@
 from openai import OpenAI
 import json
+import base64
 
 
 class ChartUnderstandingAgent:
@@ -133,27 +134,29 @@ Before producing JSON, analyse the chart in this order:
 
 """
 
+        
+
         with open(chart_image, "rb") as f:
+            image_base64 = base64.b64encode(f.read()).decode("utf-8")
 
-            response = self.client.responses.create(
-                model="gpt-4.1",
-                input=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "input_text",
-                                "text": prompt
-                            },
-                            {
-                                "type": "input_image",
-                                "image": f
-                            }
-                        ]
-                    }
-                ]
-            )
-
+        response = self.client.responses.create(
+            model="gpt-4.1",
+            input=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": prompt
+                        },
+                        {
+                            "type": "input_image",
+                            "image_url": f"data:image/png;base64,{image_base64}"
+                        }
+                    ]
+                }
+            ]
+        )
         text = response.output_text
         print("=" * 80)
         print("CHART UNDERSTANDING")
