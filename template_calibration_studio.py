@@ -231,6 +231,48 @@ class TemplateCalibrationStudio:
 
         BOXES_HERE
 
+        <script>
+
+        let activeBox = null;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        document.querySelectorAll(".chartBox").forEach(function(box){
+
+            box.addEventListener("mousedown", function(e){
+
+                activeBox = box;
+
+                offsetX = e.offsetX;
+                offsetY = e.offsetY;
+
+            });
+
+        });
+
+        document.addEventListener("mousemove", function(e){
+
+            if(activeBox == null)
+                return;
+
+            const parent = activeBox.parentElement.getBoundingClientRect();
+
+            activeBox.style.left =
+                (e.clientX - parent.left - offsetX) + "px";
+
+            activeBox.style.top =
+                (e.clientY - parent.top - offsetY) + "px";
+
+        });
+
+        document.addEventListener("mouseup", function(){
+
+            activeBox = null;
+
+        });
+
+        </script>
+
         </div>
         """
 
