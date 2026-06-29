@@ -150,97 +150,71 @@ class TemplateCalibrationStudio:
 
         with open(page_template["grid_preview"], "rb") as f:
             img_base64 = base64.b64encode(f.read()).decode()
+
+        
+        html_boxes = ""
+
+        for chart in page_template["charts"]:
+
+            bbox = chart["expected_bbox"]
+
+            left = bbox["left"]
+            top = bbox["top"]
+            width = bbox["right"] - bbox["left"]
+            height = bbox["bottom"] - bbox["top"]
+
+            html_boxes += f"""
+        <div
+        class="chartBox"
+        id="{chart['chart_id']}"
+        style="
+        position:absolute;
+        left:{left}px;
+        top:{top}px;
+        width:{width}px;
+        height:{height}px;
+        border:3px solid green;
+        background:rgba(0,255,0,0.08);
+        cursor:move;
+        user-select:none;
+        ">
+
+        {chart['chart_id']}
+
+        </div>
+        """
+
         html = """
-<div style="
-width:100%;
-height:900px;
-border:2px solid green;
-position:relative;
+        <div style="
+        width:100%;
+        height:900px;
+        border:2px solid green;
+        position:relative;
 
-background-image:url('data:image/png;base64,IMAGE_PLACEHOLDER');
-background-size:contain;
-background-repeat:no-repeat;
-background-position:center;
-">
+        background-image:url('data:image/png;base64,IMAGE_PLACEHOLDER');
+        background-size:contain;
+        background-repeat:no-repeat;
+        background-position:center;
+        ">
 
-<div
-id="box1"
-style="
-position:absolute;
-left:80px;
-top:80px;
-width:220px;
-height:280px;
-border:3px solid green;
-background:rgba(0,255,0,0.08);
-cursor:move;
-user-select:none;
-">
+        BOXES_HERE
 
-CH001
+        </div>
+        """
 
-</div>
-
-<div
-style="
-position:absolute;
-left:350px;
-top:80px;
-width:220px;
-height:280px;
-border:3px solid green;
-background:rgba(0,255,0,0.08);
-">
-
-CH002
-
-</div>
-
-<script>
-
-const box=document.getElementById("box1");
-
-let active=false;
-let offsetX=0;
-let offsetY=0;
-
-box.onmousedown=function(e){
-
-    active=true;
-
-    offsetX=e.offsetX;
-
-    offsetY=e.offsetY;
-
-}
-
-document.onmousemove=function(e){
-
-    if(!active) return;
-
-    box.style.left=(e.pageX-offsetX)+"px";
-
-    box.style.top=(e.pageY-offsetY)+"px";
-
-}
-
-document.onmouseup=function(){
-
-    active=false;
-
-}
-
-</script>
-
-</div>
-"""
         html = html.replace(
             "IMAGE_PLACEHOLDER",
             img_base64
         )
+
+        html = html.replace(
+            "BOXES_HERE",
+            html_boxes
+        )
+
         components.html(
             html,
-            height=520,
+            height=900,
             scrolling=False
         )
 
