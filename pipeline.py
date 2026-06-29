@@ -119,10 +119,15 @@ class ChartExtractionPipeline:
         
         st.warning("Reached Calibration Studio")
 
-        page_template = self.template_calibration.show(
-            page_template
-        )
-        st.warning("Calibration Studio Returned")
+        # TEMPORARY FOR DEMO
+
+# page_template = self.template_calibration.show(
+#     page_template
+# )
+
+
+        st.success("Calibration Completed (Demo Mode)")
+        
 
 ##############################################################
 # STEP 4
