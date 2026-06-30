@@ -102,7 +102,105 @@ class ChartUnderstandingAgent:
         understanding["version"] = "1.0"
 
         return understanding
+    ###############################################################
+    # Extract Numerical Series
+    ###############################################################
 
+    def extract_series_values(
+            self,
+            image_path
+    ):
+
+        image64 = self.encode_image(image_path)
+
+        prompt = """
+You are an expert chart digitization engine.
+
+Return ONLY valid JSON.
+
+Read the chart carefully.
+
+Extract ALL numerical values.
+
+Return this format exactly.
+
+{
+    "series":[
+        {
+            "name":"",
+            "values":[]
+        }
+    ]
+}
+
+Rules
+
+1. Read every visible data series.
+
+2. Read every visible numerical value.
+
+3. Estimate values if labels are not printed.
+
+4. Preserve chart order.
+
+5. Return numbers only.
+
+6. No markdown.
+
+7. JSON only.
+"""
+
+        try:
+
+            response = self.client.responses.create(
+
+                model="gpt-4.1-mini",
+
+                input=[
+
+                    {
+
+                        "role":"user",
+
+                        "content":[
+
+                            {
+
+                                "type":"input_text",
+
+                                "text":prompt
+
+                            },
+
+                            {
+
+                                "type":"input_image",
+
+                                "image_url":f"data:image/png;base64,{image64}"
+
+                            }
+
+                        ]
+
+                    }
+
+                ]
+
+            )
+
+            text = response.output_text.strip()
+
+            return self.clean_json(text)
+
+        except Exception as e:
+
+            return {
+
+                "status":"ERROR",
+
+                "message":str(e)
+
+            }
     ###############################################################
     # Prompt
     ###############################################################
