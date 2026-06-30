@@ -149,6 +149,7 @@ class ChartExtractionPipeline:
                     values=values
 
                 )
+                st.session_state["executive_repository"] = repository
 
                 self.repository_updater.save_repository(
 
@@ -169,7 +170,7 @@ class ChartExtractionPipeline:
 
                 st.json(understanding)
 
-                st.stop()
+                
         else:
             st.success("Calibration Completed")
 
@@ -190,7 +191,7 @@ class ChartExtractionPipeline:
 
             st.json(understanding)
 
-            st.stop()
+            
         
 
 ##############################################################

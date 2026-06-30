@@ -210,11 +210,8 @@ if run_button:
         )
 
         answer = qa.ask(
-
-            repository,
-
+            st.session_state["executive_repository"],
             question
-
         )
 
         st.success(answer)
