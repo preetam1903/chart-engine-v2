@@ -78,14 +78,15 @@ class ChartExtractionPipeline:
         # STEP 1
         # Header Agent
         #
+        header = {"charts": []}
 
-        header = self.header_agent.extract(
+        #header = self.header_agent.extract(
 
-            pdf_path,
+            #pdf_path,
 
-            page_number
+            #page_number
 
-        )
+        #)
 
  ##############################################################
 # STEP 2
