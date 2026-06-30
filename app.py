@@ -156,19 +156,7 @@ if run_button:
 
         )
 
-       ##############################################################
-    # Display Executive Chart Repository
-    ##############################################################
 
-    repository = results["repository"]
-
-    st.subheader("Executive Chart Repository")
-
-    st.dataframe(
-        repository,
-        use_container_width=True,
-        hide_index=True
-    )
 
     ##############################################################
     # Chart Understanding
@@ -230,6 +218,20 @@ if run_button:
         )
 
     st.success("Repository Created Successfully.")
+
+##############################################################
+# Display Executive Chart Repository
+##############################################################
+
+    repository = results["repository"]
+
+    st.subheader("Executive Chart Repository")
+
+    st.dataframe(
+        repository,
+        use_container_width=True,
+        hide_index=True
+    )
 
 
 ##############################################################
