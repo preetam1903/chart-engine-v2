@@ -401,7 +401,9 @@ class ValidationAgent:
 
             chart,
 
-            validation
+            validation,
+
+            understanding=None
 
     ):
 
@@ -419,44 +421,49 @@ class ValidationAgent:
 
         info = header_chart
 
-        chart_title = info.get(
-
-            "chart_title",
-
-            ""
-
+        chart_title = (
+            understanding.get("chart_title", "")
+            if understanding
+            else info.get("chart_title", "")
         )
 
-        legends = ", ".join(
+        if understanding:
 
-            [
-
-                l.get("name", "")
-
-                for l in info.get(
-
+            legends = ", ".join(
+                understanding.get(
                     "legend",
-
                     []
-
                 )
+            )
 
-            ]
+        else:
 
-        )
+            legends = ", ".join(
+                [
+                    l.get("name", "")
+                    for l in info.get(
+                        "legend",
+                        []
+                    )
+                ]
+            )
 
-        left_y = info.get(
-
-            "left_y_axis",
-
-            {}
-
-        ).get(
-
-            "label",
-
-            ""
-
+        left_y = (
+            understanding.get(
+                "y_axis",
+                {}
+            ).get(
+                "title",
+                ""
+            )
+            if understanding
+            else info.get(
+                "left_y_axis",
+                {}
+            ).get(
+                "label",
+                ""
+            )
         )
 
         right_y = info.get(
@@ -477,19 +484,29 @@ class ValidationAgent:
         # X Axis
         #
 
-        x_label = x_axis.get(
+        if understanding:
 
-            "x_axis",
+            x_label = ", ".join(
 
-            {}
+                understanding.get(
+                    "x_axis",
+                    {}
+                ).get(
+                    "labels",
+                    []
+                )
 
-        ).get(
+            )
 
-            "label",
+        else:
 
-            ""
-
-        )
+            x_label = x_axis.get(
+                "x_axis",
+                {}
+            ).get(
+                "label",
+                ""
+            )
 
         #
         # Chart
