@@ -328,7 +328,8 @@ class ChartExtractionPipeline:
 
                 chart=chart,
 
-                validation=validation
+                validation=validation,
+                understanding=understanding
 
             )
 
