@@ -183,6 +183,42 @@ if run_button:
             st.session_state["understanding"]
         )
 
+##############################################################
+# Executive Ask
+##############################################################
+
+    st.markdown("---")
+
+    st.subheader("Executive Intelligence")
+
+    question = st.text_input(
+
+        "Ask a question",
+
+        placeholder="Example: Which week had maximum Total Stock?"
+
+    )
+
+    if st.button("Ask Executive"):
+
+        from repository_qa_agent import RepositoryQAAgent
+
+        qa = RepositoryQAAgent(
+
+            st.secrets["OPENAI_API_KEY"]
+
+        )
+
+        answer = qa.ask(
+
+            repository,
+
+            question
+
+        )
+
+        st.success(answer)
+
     ##############################################################
     # Grid Preview
     ##############################################################
