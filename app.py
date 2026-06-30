@@ -161,36 +161,36 @@ if run_button:
 # Display Executive Chart Repository
 ##############################################################
 
-    repository = results["repository"]
+        repository = results["repository"]
 
-    st.subheader(
+            st.subheader(
 
-        "Executive Chart Repository"
+                "Executive Chart Repository"
 
-    )
+            )
 
-    st.dataframe(
+        st.dataframe(
 
-        repository,
+            repository,
 
-        use_container_width=True,
+            use_container_width=True,
 
-        hide_index=True
+            hide_index=True
 
-    )
+        )
 
         ##############################################################
 # Chart Understanding
 ##############################################################
 
-        if "understanding" in st.session_state:
+    if "understanding" in st.session_state:
 
-            st.markdown("---")
-            st.subheader("Chart Understanding")
+        st.markdown("---")
+        st.subheader("Chart Understanding")
 
-            st.json(
-                st.session_state["understanding"]
-            )
+        st.json(
+            st.session_state["understanding"]
+        )
 
         ##############################################################
 # Grid Preview
