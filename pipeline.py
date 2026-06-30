@@ -14,6 +14,7 @@ from grid_preview_agent import GridPreviewAgent
 from chart_crop_agent import ChartCropAgent
 from template_calibration_studio import TemplateCalibrationStudio
 from chart_understanding_agent import ChartUnderstandingAgent
+from repository_updater import RepositoryUpdater
 
 
 class ChartExtractionPipeline:
@@ -44,6 +45,7 @@ class ChartExtractionPipeline:
         self.chart_understanding_agent = ChartUnderstandingAgent(
             api_key
         )
+        self.repository_updater = RepositoryUpdater()
 
         self.validation_agent = ValidationAgent()
 
@@ -137,6 +139,28 @@ class ChartExtractionPipeline:
                 values = self.chart_understanding_agent.extract_series_values(
                     chart_image
                 )
+
+                repository = self.repository_updater.build_repository(
+
+                    chart_id="CH001",
+
+                    understanding=understanding,
+
+                    values=values
+
+                )
+
+                self.repository_updater.save_repository(
+
+                    repository,
+
+                    output_folder
+
+                )
+
+                st.success("Executive Repository Updated")
+
+                st.json(repository)
 
                 st.subheader("Extracted Numerical Values")
 
