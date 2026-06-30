@@ -124,7 +124,7 @@ class ChartExtractionPipeline:
 
         # TEMPORARY FOR DEMO
 
-        if False:
+        if not st.session_state.get("calibration_done", False):
             page_template = self.template_calibration.show(page_template)
 
             if st.session_state.get("run_ai", False):
