@@ -1,4 +1,4 @@
-import os
+run_import os
 import tempfile
 import streamlit as st
 
@@ -68,13 +68,13 @@ uploaded_pdf = st.file_uploader(
 
 )
 
-run_button = st.button(
+if "run_pipeline" not in st.session_state:
+    st.session_state["run_pipeline"] = False
 
-    "🚀 Build Repository",
+if st.button("🚀 Build Repository", use_container_width=True):
+    st.session_state["run_pipeline"] = True
 
-    use_container_width=True
-
-)
+run_button = st.session_state["run_pipeline"]
 ##############################################################
 # Run Pipeline
 ##############################################################
