@@ -156,32 +156,23 @@ if run_button:
 
         )
 
-        
-##############################################################
-# Display Executive Chart Repository
-##############################################################
+       ##############################################################
+    # Display Executive Chart Repository
+    ##############################################################
 
-        repository = results["repository"]
+    repository = results["repository"]
 
-            st.subheader(
+    st.subheader("Executive Chart Repository")
 
-                "Executive Chart Repository"
+    st.dataframe(
+        repository,
+        use_container_width=True,
+        hide_index=True
+    )
 
-            )
-
-        st.dataframe(
-
-            repository,
-
-            use_container_width=True,
-
-            hide_index=True
-
-        )
-
-        ##############################################################
-# Chart Understanding
-##############################################################
+    ##############################################################
+    # Chart Understanding
+    ##############################################################
 
     if "understanding" in st.session_state:
 
@@ -192,31 +183,20 @@ if run_button:
             st.session_state["understanding"]
         )
 
-        ##############################################################
-# Grid Preview
-##############################################################
+    ##############################################################
+    # Grid Preview
+    ##############################################################
 
-        if "grid_preview" in results:
+    if "grid_preview" in results:
 
-            st.subheader(
+        st.subheader("Expected Grid Layout")
 
-                "Expected Grid Layout"
+        st.image(
+            results["grid_preview"],
+            use_container_width=True
+        )
 
-            )
-
-            st.image(
-
-                results["grid_preview"],
-
-                use_container_width=True
-
-            )
-
-    st.success(
-
-        "Repository Created Successfully."
-
-    )
+    st.success("Repository Created Successfully.")
 
 
 ##############################################################
