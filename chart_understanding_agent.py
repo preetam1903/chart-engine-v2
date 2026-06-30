@@ -40,43 +40,55 @@ class ChartUnderstandingAgent:
 
         prompt = self.build_prompt()
 
-        response = self.client.responses.create(
+        try:
 
-            model="gpt-4.1-mini",
+            response = self.client.responses.create(
 
-            input=[
+                model="gpt-4.1-mini",
 
-                {
+                input=[
 
-                    "role": "user",
+                    {
 
-                    "content": [
+                        "role": "user",
 
-                        {
+                        "content": [
 
-                            "type": "input_text",
+                            {
 
-                            "text": prompt
+                                "type": "input_text",
 
-                        },
+                                "text": prompt
 
-                        {
+                            },
 
-                            "type": "input_image",
+                            {
 
-                            "image_url": f"data:image/png;base64,{image64}"
+                                "type": "input_image",
 
-                        }
+                                "image_url": f"data:image/png;base64,{image64}"
 
-                    ]
+                            }
 
-                }
+                        ]
 
-            ]
+                    }
 
-        )
+                ]
 
-        text = response.output_text.strip()
+            )
+
+            text = response.output_text.strip()
+
+        except Exception as e:
+
+            return {
+
+                "status": "ERROR",
+
+                "message": str(e)
+
+            }
 
         print("=" * 80)
         print("CHART UNDERSTANDING")
