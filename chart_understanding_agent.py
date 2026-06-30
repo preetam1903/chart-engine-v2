@@ -42,7 +42,7 @@ class ChartUnderstandingAgent:
 
         response = self.client.responses.create(
 
-            model="gpt-4.1",
+            model="gpt-4.1-mini",
 
             input=[
 
