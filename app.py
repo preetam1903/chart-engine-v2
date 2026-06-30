@@ -157,6 +157,19 @@ if run_button:
         )
 
         ##############################################################
+# Chart Understanding
+##############################################################
+
+        if "understanding" in st.session_state:
+
+            st.markdown("---")
+            st.subheader("Chart Understanding")
+
+            st.json(
+                st.session_state["understanding"]
+            )
+
+        ##############################################################
 # Grid Preview
 ##############################################################
 

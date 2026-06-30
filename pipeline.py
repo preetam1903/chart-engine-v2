@@ -134,9 +134,7 @@ class ChartExtractionPipeline:
                 st.success(f"Processing {chart_image}")
 
                 understanding = self.chart_understanding_agent.process(chart_image)
-                st.subheader("Chart Understanding")
-                st.json(understanding)
-                st.stop()
+                st.session_state["understanding"] = understanding
 
                 st.json(understanding)
 
